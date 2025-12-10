@@ -1,4 +1,6 @@
+import { Button } from "@/components/ui/button";
 import { ShoppingBag } from "lucide-react";
+import Link from "next/link";
 
 export function EmptyCart() {
   return (
@@ -8,9 +10,12 @@ export function EmptyCart() {
       <p className="text-muted-foreground mb-8">
         Looks like you haven't added anything to your cart yet.
       </p>
-      <button className="bg-main text-main-foreground px-8 py-3 font-bold border-2 border-border shadow-shadow hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
-        Start Shopping
-      </button>
+      <Button
+        className="bg-main text-main-foreground px-8 py-3 font-bold border-2 border-border shadow-shadow hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+        asChild
+      >
+        <Link href="/">Start Shopping</Link>
+      </Button>
     </div>
   );
 }

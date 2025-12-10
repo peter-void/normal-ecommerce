@@ -5,17 +5,17 @@ import { formatRupiah, parseDecimalPrice } from "@/lib/format";
 import { useEffect, useState } from "react";
 
 export function OrderSummary() {
-  const { cartItems } = useCartItem();
+  const { cartItems, selectedItems } = useCartItem();
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    const total = cartItems.reduce(
-      (acc, item) =>
-        acc + parseDecimalPrice(item.product.price) * item.quantity,
-      0
-    );
+    const total = selectedItems.reduce((acc, id) => {
+      const item = cartItems.find((item) => item.id === id);
+      if (!item) return acc;
+      return acc + parseDecimalPrice(item.product.price) * item.quantity;
+    }, 0);
     setTotal(total);
-  }, [cartItems]);
+  }, [cartItems, selectedItems]);
 
   return (
     <div className="h-fit space-y-4">

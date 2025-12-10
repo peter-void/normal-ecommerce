@@ -20,9 +20,7 @@ export function FeaturedProductCard({ product }: FeaturedProductCardProps) {
     startTransition(async () => {
       const { message, success } = await addToCart(product.id, 1);
 
-      if (success) {
-        toast.success(message);
-      } else {
+      if (!success) {
         toast.error(message);
       }
     });
