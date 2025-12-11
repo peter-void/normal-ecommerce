@@ -83,3 +83,17 @@ export type BaseUploadFile = {
   progress?: number;
   isUploading?: boolean;
 };
+
+export type UserAuth = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  email: string;
+  emailVerified: boolean;
+  name: string;
+  image?: string | null | undefined;
+  isAdmin: boolean;
+  gender?: string | null | undefined;
+  dateOfBirth?: Date | null | undefined;
+  phoneNumber?: string | null | undefined;
+};
