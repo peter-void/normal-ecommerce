@@ -184,14 +184,15 @@ model Wishlist {
 
 model Address {
   id              String  @id @default(cuid())
-  receiverName    String
+  receiverName    String  @map("receiver_name")
   phoneNumber     String  @map("phone_number")
   label           String
   province        String
-  provinceId      String
+  provinceId      String  @map("province_id")
   city            String
   cityId          String  @map("city_id")
   subdistrict     String  @map("subdistrict")
+  subdistrictId   String  @map("subdistrict_id")
   postalCode      String  @map("postal_code")
   completeAddress String  @map("complete_address")
   mainAddress     Boolean @default(false) @map("main_address")

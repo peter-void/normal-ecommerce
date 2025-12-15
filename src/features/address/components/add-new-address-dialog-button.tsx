@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { PlusIcon } from "lucide-react";
+import { AddNewAddressForm } from "./add-new-address-form";
 
 export function AddNewAddressDialogButton() {
   return (
@@ -20,14 +21,16 @@ export function AddNewAddressDialogButton() {
           Add New Address
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Add New Address</DialogTitle>
           <DialogDescription className="text-sm">
             Add your new address to make it easier for you to order.
           </DialogDescription>
         </DialogHeader>
-        <div></div>
+        <div>
+          <AddNewAddressForm />
+        </div>
       </DialogContent>
     </Dialog>
   );
