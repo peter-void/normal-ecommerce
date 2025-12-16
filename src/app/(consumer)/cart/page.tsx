@@ -16,6 +16,10 @@ export default async function CartPage() {
           <h1 className="text-4xl md:text-5xl font-heading uppercase tracking-tighter">
             Your Cart
           </h1>
+          <p className="underline text-lg bg-black text-white p-2 rounded-md mt-2.5">
+            You have to select at least one item, you can select by clicking the
+            card of item
+          </p>
         </div>
 
         {initialItems.length === 0 ? (

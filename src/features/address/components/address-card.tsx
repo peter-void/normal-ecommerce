@@ -80,7 +80,10 @@ export function AddressCard({ address }: AddressCardProps) {
 
             <div className="bg-white border-2 border-black p-3 shadow-sm max-w-xl">
               <p className="text-gray-900 font-medium leading-relaxed">
-                {address.completeAddress} <br />
+                <span className="font-medium line-clamp-6">
+                  {address.completeAddress}
+                </span>{" "}
+                <br />
                 <span className="text-gray-500 text-sm uppercase font-bold mt-1 block">
                   {address.subdistrict}, {address.city} {address.postalCode}
                 </span>

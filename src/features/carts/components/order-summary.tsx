@@ -1,7 +1,9 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useCartItem } from "@/hooks/use-cart-item";
 import { formatRupiah, parseDecimalPrice } from "@/lib/format";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export function OrderSummary() {
@@ -30,12 +32,20 @@ export function OrderSummary() {
         </div>
 
         <div className="mt-6 space-y-2">
-          <button className="w-full bg-chart-5 text-white text-sm font-heading uppercase py-3 border-2 border-border shadow-shadow hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all active:translate-x-[4px] active:translate-y-[4px]">
-            Checkout
-          </button>
-          <button className="w-full bg-white text-foreground text-sm font-heading uppercase py-3 border-2 border-border shadow-shadow hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all active:translate-x-[4px] active:translate-y-[4px]">
+          <Button
+            className="w-full bg-chart-5 text-white text-sm font-heading uppercase py-3 border-2 border-border shadow-shadow hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all active:translate-x-[4px] active:translate-y-[4px] disabled:opacity-50 cursor-pointer"
+            disabled={selectedItems.length === 0}
+            asChild
+          >
+            {selectedItems.length === 0 ? (
+              <span className="disabled:opacity-50">Checkout</span>
+            ) : (
+              <Link href="/cart/checkout">Checkout</Link>
+            )}
+          </Button>
+          <Button className="w-full bg-white text-foreground text-sm font-heading uppercase py-3 border-2 border-border shadow-shadow hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all active:translate-x-[4px] active:translate-y-[4px] ">
             Continue Shopping
-          </button>
+          </Button>
         </div>
       </div>
     </div>

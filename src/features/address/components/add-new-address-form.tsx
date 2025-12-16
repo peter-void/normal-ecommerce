@@ -474,7 +474,6 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                 </div>
               </div>
 
-              {/* Footer Section */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t">
                 <div className="flex items-center space-x-2 bg-muted/30 px-4 py-2 rounded-lg border">
                   <Checkbox
