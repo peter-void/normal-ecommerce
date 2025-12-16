@@ -97,3 +97,12 @@ export type UserAuth = {
   dateOfBirth?: Date | null | undefined;
   phoneNumber?: string | null | undefined;
 };
+
+export type Level = {
+  name: string;
+  code: string;
+  service: string;
+  description: string;
+  cost: number;
+  etd: string;
+};

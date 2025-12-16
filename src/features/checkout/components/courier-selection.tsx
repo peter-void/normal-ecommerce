@@ -10,21 +10,13 @@ import {
 import { Courier } from "@/constants";
 import { Address } from "@/generated/prisma/client";
 import { useCartItem } from "@/hooks/use-cart-item";
+import { useCheckout } from "@/hooks/use-checkout";
 import { formatRupiah } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { CartItemType } from "@/types";
+import { CartItemType, Level } from "@/types";
 import { Check, ChevronDown, Loader2, Truck } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-
-type Level = {
-  name: string;
-  code: string;
-  service: string;
-  description: string;
-  cost: number;
-  etd: string;
-};
 
 const COURIER_METADATA: Record<Courier, { name: string; logo: string }> = {
   jne: {
@@ -58,7 +50,10 @@ export function CourierSelection({
   const [courierServices, setCourierServices] = useState<Level[]>([]);
   const [selectedService, setSelectedService] = useState<Level | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
   const { setCartItems } = useCartItem();
+  const { setSelectedCourierContext, setSelectedServiceContext } =
+    useCheckout();
 
   useEffect(() => {
     if (items) {
@@ -92,6 +87,7 @@ export function CourierSelection({
 
           if (data && data.length > 0) {
             setSelectedService(data[0]);
+            setSelectedServiceContext(data[0]);
           }
         } catch (error) {
           console.error("Error fetching courier costs:", error);
@@ -125,6 +121,7 @@ export function CourierSelection({
               onOpenChange={(open) => {
                 if (open && !isSelected) {
                   setSelectedCourier(id as Courier);
+                  setSelectedCourierContext(id as Courier);
                 }
               }}
             >
@@ -221,7 +218,10 @@ export function CourierSelection({
                     {courierServices.map((level, idx) => (
                       <DropdownMenuItem
                         key={`${level.code}-${level.service}-${idx}`}
-                        onClick={() => setSelectedService(level)}
+                        onClick={() => {
+                          setSelectedService(level);
+                          setSelectedServiceContext(level);
+                        }}
                         className={cn(
                           "cursor-pointer flex items-center justify-between py-3 px-3 rounded-md border border-transparent hover:border-border hover:bg-gray-50 focus:bg-gray-50 bg-white",
                           selectedService?.service === level.service &&

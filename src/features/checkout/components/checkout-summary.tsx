@@ -1,21 +1,34 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useCheckout } from "@/hooks/use-checkout";
 import { formatRupiah } from "@/lib/format";
+import { CartItemType } from "@/types";
 import { LockKeyhole } from "lucide-react";
+import { useEffect } from "react";
 
 interface CheckoutSummaryProps {
-  subtotal: number;
-  shippingCost?: number;
-  platformFee?: number;
+  items: CartItemType[];
 }
 
-export function CheckoutSummary({
-  subtotal = 100000, // Mock default
-  shippingCost = 14000,
-  platformFee = 1000,
-}: CheckoutSummaryProps) {
-  const total = subtotal + shippingCost + platformFee;
+export function CheckoutSummary({ items }: CheckoutSummaryProps) {
+  const { selectedServiceContext: selectedService, setTotalBill } =
+    useCheckout();
+
+  const totalPrice = items.reduce(
+    (acc, item) => acc + item.quantity * Number(item.product.price),
+    0
+  );
+
+  const deliveryFee = selectedService?.cost || 0;
+
+  const platformFee = 2000;
+
+  const totalBill = totalPrice + deliveryFee + platformFee;
+
+  useEffect(() => {
+    setTotalBill(totalBill);
+  }, [totalBill]);
 
   return (
     <div className="h-fit space-y-6 sticky top-24">
@@ -27,11 +40,11 @@ export function CheckoutSummary({
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Total Price (Items)</span>
-            <span className="font-bold">{formatRupiah(subtotal)}</span>
+            <span className="font-bold">{formatRupiah(totalPrice)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Total Delivery Fee</span>
-            <span className="font-bold">{formatRupiah(shippingCost)}</span>
+            <span className="font-bold">{formatRupiah(deliveryFee)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Platform Fee</span>
@@ -43,7 +56,7 @@ export function CheckoutSummary({
           <div className="flex justify-between text-lg items-end">
             <span className="font-heading uppercase text-xl">Total Bill</span>
             <span className="font-heading text-xl text-primary">
-              {formatRupiah(total)}
+              {formatRupiah(totalBill)}
             </span>
           </div>
         </div>

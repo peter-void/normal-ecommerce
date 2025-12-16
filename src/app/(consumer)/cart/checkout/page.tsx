@@ -55,12 +55,7 @@ export default async function Page() {
           </div>
 
           <div className="lg:sticky lg:top-24">
-            <CheckoutSummary
-              subtotal={items.reduce(
-                (acc, item) => acc + Number(item.product.price) * item.quantity,
-                0
-              )}
-            />
+            <CheckoutSummary items={items} />
           </div>
         </div>
       </div>
