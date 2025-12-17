@@ -26,7 +26,7 @@ export function WishlistButton({ productId, isWishlist }: WishlistButtonProps) {
 
   return (
     <button
-      className="flex h-14 w-14 items-center justify-center border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-neutral-50 transition-all hover:translate-y-[-2px] active:translate-y-0 active:shadow-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+      className="flex h-16 w-16 items-center justify-center border-4 border-black bg-white text-white hover:-translate-y-1 transition-transform"
       onClick={handleWishlistClick}
       disabled={isPending}
     >

@@ -26,6 +26,7 @@ model User {
   carts     Cart[]
   wishlists Wishlist[]
   addresses Address[]
+  orders    Order[]
 
   @@unique([email])
   @@map("user")
@@ -110,10 +111,11 @@ model Product {
   category   Category @relation(fields: [categoryId], references: [id])
   images     Image[]
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  cartItems CartItem[]
-  wishlists Wishlist[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  cartItems  CartItem[]
+  wishlists  Wishlist[]
+  orderItems OrderItem[]
 
   @@map("products")
 }
@@ -204,4 +206,47 @@ model Address {
   updatedAt DateTime @updatedAt
 
   @@map("addresses")
+}
+
+model Order {
+  id String @id @default(cuid())
+
+  status      OrderStatus @default(PENDING)
+  totalAmount Int
+
+  paymentMethod String?
+  paymentStatus String?
+
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id String @id @default(cuid())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  quantity Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("order_items")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+  EXPIRED
 }

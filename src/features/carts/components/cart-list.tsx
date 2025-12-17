@@ -73,25 +73,27 @@ export function CartList({
   }, []);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <AnimatePresence mode="popLayout">
         {cartItems.map((item) => (
           <CartItem key={item.id} item={item} />
         ))}
       </AnimatePresence>
       {loading && (
-        <div className="flex items-center justify-center py-4 gap-2 text-muted-foreground">
-          <Loader2 className="w-5 h-5 animate-spin" />
-          <span>Loading more...</span>
+        <div className="flex items-center justify-center py-6 gap-2 font-bold uppercase">
+          <div className="w-6 h-6 border-4 border-black border-t-transparent rounded-full animate-spin" />
+          <span>Loading more loot...</span>
         </div>
       )}
 
       {hasMore && <div ref={sentinelRef} className="h-4" />}
 
       {!hasMore && cartItems.length > 0 && (
-        <p className="text-center text-muted-foreground py-4 text-sm">
-          You've reached the end of your cart
-        </p>
+        <div className="flex items-center justify-center my-8">
+          <span className="bg-black text-white px-4 py-1 font-mono text-sm uppercase -rotate-1">
+            End of list
+          </span>
+        </div>
       )}
     </div>
   );

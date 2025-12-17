@@ -4,14 +4,23 @@ import { Button } from "@/components/ui/button";
 import { useCheckout } from "@/hooks/use-checkout";
 import { formatRupiah } from "@/lib/format";
 import { CartItemType } from "@/types";
-import { LockKeyhole } from "lucide-react";
-import { useEffect } from "react";
+import { Loader2, LockKeyhole } from "lucide-react";
+import { useEffect, useTransition } from "react";
+
+declare global {
+  interface Window {
+    snap: {
+      pay: (token: string) => void;
+    };
+  }
+}
 
 interface CheckoutSummaryProps {
   items: CartItemType[];
 }
 
 export function CheckoutSummary({ items }: CheckoutSummaryProps) {
+  const [isPending, startTransition] = useTransition();
   const { selectedServiceContext: selectedService, setTotalBill } =
     useCheckout();
 
@@ -29,6 +38,35 @@ export function CheckoutSummary({ items }: CheckoutSummaryProps) {
   useEffect(() => {
     setTotalBill(totalBill);
   }, [totalBill]);
+
+  const handlePayNow = () => {
+    startTransition(async () => {
+      const response = await fetch("/api/payment", {
+        method: "POST",
+        body: JSON.stringify({
+          totalAmount: totalPrice,
+          productDetails: items.map((item) => ({
+            productId: item.product.id,
+            quantity: item.quantity,
+            price: item.product.price,
+            name: item.product.name,
+          })),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create payment");
+      }
+
+      const data = await response.json();
+
+      if (window.snap) {
+        window.snap.pay(data.token);
+      } else {
+        window.location.href = data.url;
+      }
+    });
+  };
 
   return (
     <div className="h-fit space-y-6 sticky top-24">
@@ -62,14 +100,18 @@ export function CheckoutSummary({ items }: CheckoutSummaryProps) {
         </div>
 
         <div className="mt-8 space-y-3">
-          <Button className="w-full h-12 bg-black text-white text-base font-bold uppercase tracking-wider border-2 border-transparent hover:bg-gray-900 shadow-none hover:shadow-lg transition-all flex items-center gap-2">
-            <LockKeyhole className="w-4 h-4" />
+          <Button
+            className="w-full h-12 bg-black text-white text-base font-bold uppercase tracking-wider border-2 border-transparent hover:bg-gray-900 shadow-none hover:shadow-lg transition-all flex items-center gap-2"
+            onClick={handlePayNow}
+            disabled={isPending}
+          >
+            {isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <LockKeyhole className="w-4 h-4" />
+            )}
             Pay Now
           </Button>
-
-          <p className="text-[10px] text-center text-gray-400 font-medium leading-tight px-4">
-            By proceeding, you agree to our Terms of Service and Privacy Policy.
-          </p>
         </div>
       </div>
     </div>
