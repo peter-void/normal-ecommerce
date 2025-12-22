@@ -297,8 +297,16 @@ export function Uploader({
   useEffect(() => {
     onChange?.(
       isEditMode
-        ? files?.map((file) => ({ id: file.imageId!, key: file.key! })) ?? []
-        : files.map((file) => ({ id: file.imageId!, key: file.key! }))
+        ? files?.map((file) => ({
+            id: file.imageId!,
+            key: file.key!,
+            placeholder: file.objectUrl,
+          })) ?? []
+        : files.map((file) => ({
+            id: file.imageId!,
+            key: file.key!,
+            placeholder: file.objectUrl,
+          }))
     );
   }, [files, isEditMode]);
 

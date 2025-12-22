@@ -1,21 +1,8 @@
 "use client";
 
-import {
-  Order,
-  OrderItem,
-  Product,
-  Image as ProductImage,
-} from "@/generated/prisma/client";
-import { OrderCard } from "./order-card";
+import { OrderWithItems } from "@/app/(consumer)/profile/order/[id]/page";
 import { motion } from "framer-motion";
-
-export type OrderWithItems = Order & {
-  orderItems: (OrderItem & {
-    product: Product & {
-      images: ProductImage[];
-    };
-  })[];
-};
+import { OrderCard } from "./order-card";
 
 interface OrderListProps {
   orders: OrderWithItems[];

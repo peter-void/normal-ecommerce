@@ -22,10 +22,24 @@ export async function POST(req: NextRequest) {
 
     const { totalAmount, productDetails } = body;
 
+    const getUserMainAddress = await prisma.address.findFirst({
+      where: {
+        userId: user.id,
+        mainAddress: true,
+      },
+    });
+
+    if (!getUserMainAddress) {
+      return NextResponse.json("Main address not found", {
+        status: 404,
+      });
+    }
+
     const order = await prisma.order.create({
       data: {
         userId: user.id,
         totalAmount,
+        addressId: getUserMainAddress.id,
       },
     });
 

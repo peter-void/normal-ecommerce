@@ -133,6 +133,7 @@ export async function createProduct(
       stock,
       isActive,
       weight,
+      isFeatured,
     } = validatedData.data;
 
     await prisma.product.create({
@@ -142,24 +143,25 @@ export async function createProduct(
         price,
         stock,
         isActive,
+        isFeatured,
         weight,
         description,
         categoryId,
         images: {
-          connect: image.map((url, index) => ({
-            id: url.id,
-            key: url.key,
-            isMain: index === 0,
-          })),
+          connect: image.map((url) => ({ id: url.id, key: url.key })),
         },
       },
     });
+
+    revalidatePath("/admin/products");
 
     return {
       success: true,
       message: "Product created successfully",
     };
   } catch (error) {
+    console.log(error);
+
     return {
       success: false,
       message: "Failed to create product",

@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { OrderWithItems } from "./order-list";
+import Link from "next/link";
 
 interface OrderCardProps {
   order: OrderWithItems;
@@ -31,9 +32,7 @@ export function OrderCard({ order }: OrderCardProps) {
 
   return (
     <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-0 overflow-hidden bg-white hover:translate-y-[-2px] hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-all duration-200">
-      {/* Creative Header */}
       <div className="relative border-b-4 border-black bg-yellow-400 overflow-hidden">
-        {/* Dotted Pattern Background */}
         <div
           className="absolute inset-0 opacity-20 pointer-events-none"
           style={{
@@ -78,7 +77,6 @@ export function OrderCard({ order }: OrderCardProps) {
         </div>
       </div>
 
-      {/* Items */}
       <div className="divide-y-4 divide-black">
         {order.orderItems.map((item) => (
           <div
@@ -120,7 +118,6 @@ export function OrderCard({ order }: OrderCardProps) {
         ))}
       </div>
 
-      {/* Footer Mobile Total */}
       <div className="sm:hidden border-t-4 border-black p-4 bg-gray-50 flex justify-between items-center">
         <p className="font-bold uppercase">Total</p>
         <p className="text-xl font-black tabular-nums">
@@ -128,7 +125,6 @@ export function OrderCard({ order }: OrderCardProps) {
         </p>
       </div>
 
-      {/* Actions */}
       <div className="border-t-4 border-black p-4 sm:p-6 bg-white flex justify-end gap-4">
         <Button
           variant="neutral"
@@ -136,8 +132,11 @@ export function OrderCard({ order }: OrderCardProps) {
         >
           Track Order
         </Button>
-        <Button className="w-full sm:w-auto font-bold uppercase bg-main text-main-foreground hover:bg-main/90">
-          View Details
+        <Button
+          className="w-full sm:w-auto font-bold uppercase bg-main text-main-foreground hover:bg-main/90"
+          asChild
+        >
+          <Link href={`/profile/order/${order.id}`}>View Details</Link>
         </Button>
       </div>
     </Card>

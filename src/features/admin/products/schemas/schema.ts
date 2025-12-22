@@ -23,6 +23,7 @@ export const createProductSchema = z.object({
     .nullable()
     .transform((value) => value || null),
   price: z.number().min(1, { error: "Price is required" }),
+  isFeatured: z.boolean().optional(),
 });
 
 export type CreateProductSchema = z.infer<typeof createProductSchema>;

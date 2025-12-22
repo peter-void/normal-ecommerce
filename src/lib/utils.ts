@@ -1,4 +1,3 @@
-import { Product } from "@/generated/prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import slugify from "slugify";
 import { twMerge } from "tailwind-merge";

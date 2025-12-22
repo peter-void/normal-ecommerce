@@ -64,6 +64,8 @@ export async function getProducts({
       },
       images: {
         select: {
+          id: true,
+          key: true,
           alt: true,
           src: true,
         },

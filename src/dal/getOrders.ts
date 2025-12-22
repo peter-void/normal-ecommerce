@@ -4,6 +4,53 @@ import { serializeProduct } from "@/lib/utils";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+export async function getUserOrderDetails(orderId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    return redirect("/signin");
+  }
+
+  const order = await prisma.order.findUnique({
+    where: { id: orderId, userId: session.user.id },
+    include: {
+      user: {
+        include: {
+          addresses: {
+            where: {
+              mainAddress: true,
+            },
+          },
+        },
+      },
+      orderItems: {
+        include: {
+          product: {
+            include: {
+              category: true,
+              images: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!order) {
+    return redirect("/");
+  }
+
+  return {
+    ...order,
+    orderItems: order.orderItems.map((item) => ({
+      ...item,
+      product: serializeProduct(item.product),
+    })),
+  };
+}
+
 export async function getUserOrders() {
   const session = await auth.api.getSession({
     headers: await headers(),

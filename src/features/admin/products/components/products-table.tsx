@@ -2,16 +2,26 @@
 
 import { AlertDialogActionButton } from "@/components/alert-dialog-action-button";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Category } from "@/generated/prisma/client";
 import { formatDateString, formatRupiah } from "@/lib/format";
 import { ProductTableProps } from "@/types";
-import { Edit2Icon, Trash2 } from "lucide-react";
-import Link from "next/link";
+import {
+  Calendar,
+  Image as ImageIcon,
+  Package,
+  Star,
+  Trash2,
+} from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
 import { deleteProduct } from "../actions/action";
+import { EditProductButton } from "./edit-product-button";
 
-export function ProductsTable({ products, skip }: ProductTableProps) {
+export function ProductsTable({
+  products,
+  skip,
+  categories,
+}: ProductTableProps & { categories: Category[] }) {
   const [isDeleting, startDeleting] = useTransition();
 
   const handleDeleteProduct = async (pID: string) => {
@@ -27,85 +37,125 @@ export function ProductsTable({ products, skip }: ProductTableProps) {
   };
 
   return (
-    <table className="w-full text-left text-sm">
-      <thead className="bg-main text-main-foreground border-b-2 border-border font-heading">
+    <table className="w-full text-left border-collapse">
+      <thead className="bg-main text-main-foreground border-b-4 border-border font-heading uppercase text-xs tracking-[0.2em]">
         <tr>
-          <th className="p-4 font-bold">#</th>
-          <th className="p-4 font-bold w-[20%]">Product</th>
-          <th className="p-4 font-bold">Price</th>
-          <th className="p-4 font-bold">Stock</th>
-          <th className="p-4 font-bold">Status</th>
-          <th className="p-4 font-bold">Date</th>
-          <th className="p-4 font-bold text-right">Actions</th>
+          <th className="p-6 font-bold text-center w-16">#</th>
+          <th className="p-6 font-bold">Product Details</th>
+          <th className="p-6 font-bold w-40">Price / Inventory</th>
+          <th className="p-6 font-bold w-32 text-center">Featured</th>
+          <th className="p-6 font-bold w-32 text-center">Status</th>
+          <th className="p-6 font-bold w-44">Timeline</th>
+          <th className="p-6 font-bold text-right w-32">Actions</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody className="bg-white">
         {products.map((product, i) => (
           <tr
             key={product.id}
-            className="border-b-2 border-border transition-colors last:border-0 hover:bg-main/10"
+            className="group border-b-2 border-border transition-all hover:bg-main/5"
           >
-            <td className="p-4 font-bold">{i + skip + 1}</td>
-            <td className="p-4">
-              <div className="flex items-center gap-4">
-                <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-base border-2 border-border bg-white">
+            <td className="p-6 text-center">
+              <div className="inline-flex h-8 w-8 items-center justify-center rounded-base border-2 border-border bg-white font-heading text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                {i + skip + 1}
+              </div>
+            </td>
+            <td className="p-6">
+              <div className="flex items-center gap-5">
+                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 border-border bg-zinc-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-hover:scale-105 transition-transform">
                   {product.images.length > 0 ? (
                     <img
-                      src={product.images[0].src}
+                      src={product.images[0].src || "/placeholder.png"}
                       alt={product.images[0].alt || product.name}
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gray-100 text-xs text-muted-foreground">
-                      No Img
+                    <div className="flex h-full w-full items-center justify-center bg-gray-100 text-muted-foreground/30">
+                      <ImageIcon className="h-8 w-8" />
                     </div>
                   )}
                 </div>
-                <div className="flex flex-col">
-                  <span className="font-bold text-lg leading-tight">
+                <div className="flex flex-col gap-1.5 min-w-0">
+                  <span className="font-heading text-xl truncate">
                     {product.name}
                   </span>
-                  <div className="mt-1 flex gap-2">
-                    <Badge variant="neutral" className="px-1 py-0 text-[10px]">
+                  <div className="flex flex-wrap gap-2">
+                    <Badge
+                      variant="neutral"
+                      className="px-2 py-0.5 text-[10px] border-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                    >
                       {product.category.name}
+                    </Badge>
+                    <Badge className="px-2 py-0.5 text-[10px] border-2 bg-zinc-100 text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                      {product.status}
                     </Badge>
                   </div>
                 </div>
               </div>
             </td>
-            <td className="p-4 font-base text-muted-foreground">
-              {formatRupiah(product.price)}
+            <td className="p-6">
+              <div className="flex flex-col gap-2">
+                <div className="font-heading text-lg text-main">
+                  {formatRupiah(product.price)}
+                </div>
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`flex items-center gap-1.5 px-2 py-0.5 rounded-base border-2 border-border text-[10px] font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${
+                      product.stock <= 10
+                        ? "bg-red-100 text-red-600"
+                        : "bg-green-100 text-green-700"
+                    }`}
+                  >
+                    <Package className="h-3 w-3" />
+                    {product.stock} units
+                  </div>
+                </div>
+              </div>
             </td>
-            <td className="p-4 font-base">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`font-bold ${
-                    product.stock <= 10 ? "text-red-600" : "text-gray-700"
+            <td className="p-6 text-center">
+              <div className="flex items-center justify-center">
+                <div
+                  className={`flex h-10 w-10 items-center justify-center rounded-base border-2 border-border shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all ${
+                    product.isFeatured ? "bg-yellow-400" : "bg-zinc-100"
                   }`}
                 >
-                  {product.stock}
-                </span>
-                <span className="text-xs text-muted-foreground">in stock</span>
+                  <Star
+                    className={`h-5 w-5 ${
+                      product.isFeatured
+                        ? "text-black fill-black"
+                        : "text-zinc-400"
+                    }`}
+                  />
+                </div>
               </div>
             </td>
-            <td className="p-4">
-              <Badge variant={product.isActive ? "default" : "neutral"}>
-                {product.isActive ? "Active" : "Inactive"}
+            <td className="p-6 text-center">
+              <Badge
+                className={`w-full py-1 justify-center border-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] font-heading transition-colors ${
+                  product.isActive
+                    ? "bg-green-400 text-black hover:bg-green-500"
+                    : "bg-gray-200 text-gray-500 hover:bg-gray-300"
+                }`}
+              >
+                {product.isActive ? "ACTIVE" : "DRAFT"}
               </Badge>
             </td>
-            <td className="p-4 font-base text-muted-foreground text-xs">
-              <div className="flex flex-col">
-                <span>{formatDateString(product.createdAt)}</span>
-                <span className="text-[10px] opacity-70">Created</span>
+            <td className="p-6">
+              <div className="flex flex-col gap-1 text-xs font-base text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-3 w-3 text-main" />
+                  <span className="font-bold text-black">
+                    {formatDateString(product.createdAt)}
+                  </span>
+                </div>
+                <div className="pl-5 text-[10px] italic opacity-70 uppercase font-bold tracking-tight">
+                  Created In Store
+                </div>
               </div>
             </td>
-            <td className="p-4 text-right">
-              <div className="flex justify-end gap-2">
-                <Button size="icon" className="size-8" asChild>
-                  <Link href={`/admin/products/${product.id}/edit`}>
-                    <Edit2Icon className="size-4" />
-                  </Link>
-                </Button>
+            <td className="p-6 text-right">
+              <div className="flex justify-end gap-3">
+                <EditProductButton product={product} categories={categories} />
                 <AlertDialogActionButton
                   action={() => handleDeleteProduct(product.id)}
                   buttonContent={
@@ -114,12 +164,12 @@ export function ProductsTable({ products, skip }: ProductTableProps) {
                       <span className="sr-only">Delete</span>
                     </>
                   }
-                  dialogTitle="Delete Product"
-                  dialogDescription="Are you sure you want to delete this product? This action cannot be undone."
+                  dialogTitle="Archive Product"
+                  dialogDescription="This will permanently remove the product from the catalog. This action cannot be undone."
                   triggerButtonSize="icon"
                   disabled={isDeleting}
                   isPending={isDeleting}
-                  className="h-8 w-8 bg-white transition-colors hover:bg-red-200"
+                  className="h-10 w-10 bg-white border-2 border-border text-black transition-all hover:bg-red-400 hover:text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                 />
               </div>
             </td>
