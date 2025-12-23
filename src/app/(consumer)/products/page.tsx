@@ -1,86 +1,32 @@
-import { PAGE_SIZE, SortOption } from "@/constants";
-import { getPublicCategories } from "@/dal/getCategories";
+import { getAllProducts } from "@/dal/get-all-products";
 import { ProductListing } from "@/features/products/components/product-listing";
 import { Prisma } from "@/generated/prisma/client";
-import prisma from "@/lib/prisma";
-import { serializeProduct } from "@/lib/utils";
-import { PageProps } from "@/types";
+import { PageProps, ProductDecimalColumn } from "@/types";
 
-export type GetAllProductsProps = Prisma.ProductGetPayload<{
-  include: {
-    images: true;
-    category: true;
-  };
-}>;
-
-async function getAllProducts({
-  take,
-  skip,
-  sort = SortOption.NEWEST,
-}: {
-  take: number;
-  skip: number;
-  sort?: string;
-}) {
-  let orderBy = {};
-
-  switch (sort) {
-    case SortOption.NEWEST:
-      orderBy = {
-        createdAt: "desc",
-      };
-      break;
-    case SortOption.PRICE_ASC:
-      orderBy = {
-        price: "asc",
-      };
-      break;
-    case SortOption.PRICE_DESC:
-      orderBy = {
-        createdAt: "desc",
-      };
-      break;
-    default:
-      orderBy = {
-        createdAt: "desc",
-      };
-      break;
-  }
-
-  const products = await prisma.product.findMany({
-    take,
-    skip,
-    orderBy,
+export type GetAllProductsProps = Omit<
+  Prisma.ProductGetPayload<{
     include: {
-      images: true,
-      category: true,
-    },
-  });
-
-  const totalProducts = await prisma.product.count();
-
-  const serializationProducts = products.map((product) =>
-    serializeProduct(product)
-  );
-
-  return {
-    products: serializationProducts,
-    totalPages: Math.ceil(totalProducts / PAGE_SIZE),
-  };
-}
+      images: true;
+      category: true;
+    };
+  }>,
+  ProductDecimalColumn
+> & {
+  price?: string;
+  weight?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
 
 export default async function Page(props: PageProps) {
-  const pageNumber = (await props.searchParams)?.page as string | undefined;
   const sortOption = (await props.searchParams)?.sort as string;
+  const q = (await props.searchParams)?.q as string;
 
-  const skip = ((pageNumber ? Number(pageNumber) : 1) - 1) * PAGE_SIZE;
-
-  const categoriesData = await getPublicCategories();
-  const { products: productsData, totalPages } = await getAllProducts({
-    take: PAGE_SIZE,
-    skip,
-    sort: sortOption,
-  });
+  const {
+    items: productsData,
+    nextCursor,
+    hasMore,
+  } = await getAllProducts(undefined, sortOption, q);
 
   return (
     <div className="min-h-screen bg-neutral-100 relative font-sans pt-20">
@@ -106,9 +52,10 @@ export default async function Page(props: PageProps) {
 
       <div className="container mx-auto px-4 md:px-8 py-12 relative z-10">
         <ProductListing
-          products={productsData}
-          currentPage={pageNumber ?? "1"}
-          totalPages={totalPages}
+          initialProducts={productsData}
+          initialHasMore={hasMore}
+          initialCursor={nextCursor}
+          initialQ={q}
         />
       </div>
     </div>

@@ -175,14 +175,9 @@ export function Navbar({ categories = [] }: NavbarProps) {
           })}
         </nav>
 
-        {/* RIGHT SIDE ICONS */}
         <div className="flex items-center gap-x-4">
-          <button className="p-2 border-2 border-transparent hover:border-black hover:bg-yellow-400 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
-            <SearchIcon className="size-5" />
-          </button>
-
           <Link
-            href={sessionPending ? "/" : session ? "/profile" : "/signup"}
+            href={sessionPending ? "/" : session ? "/profile" : "/auth/signin"}
             className="p-2 border-2 border-transparent hover:border-black hover:bg-blue-400 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
           >
             <UserIcon className="size-5" />
@@ -193,8 +188,6 @@ export function Navbar({ categories = [] }: NavbarProps) {
             className="p-2 border-2 border-transparent hover:border-black hover:bg-red-400 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all relative"
           >
             <ShoppingCartIcon className="size-5" />
-            {/* Simple badge example */}
-            {/* <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-4 h-4 flex items-center justify-center border border-white font-bold">3</span> */}
           </Link>
 
           {!sessionPending && session && session.user.isAdmin && (

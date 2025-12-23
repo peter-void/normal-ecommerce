@@ -15,7 +15,10 @@ export async function proxy(req: NextRequest) {
     return NextResponse.redirect(new URL("/auth/signin", req.url));
   }
 
-  if (session?.user?.isAdmin !== true) {
+  if (
+    session?.user?.isAdmin !== true &&
+    req.nextUrl.pathname.startsWith("/admin")
+  ) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 
