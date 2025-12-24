@@ -228,6 +228,11 @@ export function EditCategoryButton({
                                 setImage(e[0].placeholder!);
                                 onChange(e[0].id);
                               }
+
+                              if (e.length === 0) {
+                                setImage("");
+                                onChange("");
+                              }
                             }}
                             maxFiles={1}
                             isEditMode={true}

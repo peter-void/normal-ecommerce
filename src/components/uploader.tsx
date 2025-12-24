@@ -263,6 +263,8 @@ export function Uploader({
         await deleteImage(file.imageId);
 
         setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
+
+        onChange?.(images?.filter((image) => image.id !== file.imageId)!);
       }
       toast.success("File deleted successfully");
     } catch (error) {

@@ -1,98 +1,94 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { getUsers } from "@/dal/getUsers";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Users, ShieldCheck, UserPlus, MailCheck } from "lucide-react";
+import { UsersContent } from "@/features/users";
+import { PAGE_SIZE } from "@/constants";
+import { PageProps } from "@/types";
 
-export default async function UsersPage() {
-  const users = await getUsers();
+export default async function UsersPage(props: PageProps) {
+  const pageNumber = (await props.searchParams)?.page as string | undefined;
+  const skip = ((pageNumber ? Number(pageNumber) : 1) - 1) * PAGE_SIZE;
+
+  const { data: users, metadata } = await getUsers({ skip, take: PAGE_SIZE });
+
+  const totalUsers = users.length;
+  const adminCount = users.filter((u) => u.isAdmin).length;
+  const verifiedCount = users.filter((u) => u.emailVerified).length;
+
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const newUsersCount = users.filter((u) => u.createdAt > thirtyDaysAgo).length;
+
+  const stats = [
+    {
+      label: "TOTAL USERS",
+      value: totalUsers,
+      icon: <Users className="h-6 w-6" />,
+      color: "bg-main",
+    },
+    {
+      label: "ADMINS",
+      value: adminCount,
+      icon: <ShieldCheck className="h-6 w-6" />,
+      color: "bg-[#A3E635]",
+    },
+    {
+      label: "NEW USERS (30D)",
+      value: newUsersCount,
+      icon: <UserPlus className="h-6 w-6" />,
+      color: "bg-[#38BDF8]",
+    },
+    {
+      label: "VERIFIED",
+      value: verifiedCount,
+      icon: <MailCheck className="h-6 w-6" />,
+      color: "bg-[#FB7185]",
+    },
+  ];
 
   return (
-    <div className="container pt-8">
-      <div className="w-full space-y-8">
-        <h1 className="text-3xl font-heading">Users</h1>
-
-        <div className="w-full overflow-hidden rounded-base border-2 border-border bg-secondary-background shadow-shadow">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-main text-main-foreground border-b-2 border-border font-heading">
-                <tr>
-                  <th className="p-4 font-bold">#</th>
-                  <th className="p-4 font-bold">Name</th>
-                  <th className="p-4 font-bold">Email</th>
-                  <th className="p-4 font-bold">Role</th>
-                  <th className="p-4 font-bold">Created At</th>
-                  <th className="p-4 font-bold text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user, i) => (
-                  <tr
-                    key={user.id}
-                    className="border-b-2 border-border transition-colors last:border-0 hover:bg-main/10"
-                  >
-                    <td className="p-4 font-bold">{i + 1}</td>
-                    <td className="p-4 font-bold">{user.name}</td>
-                    <td className="p-4 font-base">{user.email}</td>
-                    <td className="p-4 font-base">
-                      <Badge variant={user.isAdmin ? "default" : "neutral"}>
-                        {user.isAdmin ? "Admin" : "User"}
-                      </Badge>
-                    </td>
-                    <td className="p-4">
-                      {user.createdAt.toLocaleDateString("en-US", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="neutral"
-                          size="icon"
-                          className="h-8 w-8"
-                        >
-                          <Eye className="h-4 w-4" />
-                          <span className="sr-only">View</span>
-                        </Button>
-                        <Button
-                          variant="neutral"
-                          size="icon"
-                          className="h-8 w-8"
-                        >
-                          <Pencil className="h-4 w-4" />
-                          <span className="sr-only">Edit</span>
-                        </Button>
-                        <Button
-                          variant="neutral"
-                          size="icon"
-                          className="h-8 w-8"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          <span className="sr-only">Delete</span>
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="flex items-center justify-between border-t-2 border-border bg-secondary-background p-4">
-            <div className="text-sm font-base text-gray-600">
-              Showing <strong>1-7</strong> of <strong>24</strong> users
-            </div>
-            <div className="flex gap-2">
-              <Button variant="neutral" size="sm" disabled>
-                Previous
-              </Button>
-              <Button variant="neutral" size="sm">
-                Next
-              </Button>
-            </div>
-          </div>
+    <div className="container py-10">
+      <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-4xl font-heading">Users</h1>
+          <p className="text-lg font-base text-gray-600">
+            Manage your user community, assign roles, and track growth.
+          </p>
         </div>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat, i) => (
+            <div
+              key={i}
+              className="group relative flex flex-col gap-4 rounded-base border-2 border-border bg-secondary-background p-6 shadow-shadow transition-all hover:translate-x-boxShadowX hover:translate-y-boxShadowY hover:shadow-none"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                    {stat.label}
+                  </p>
+                  <h3 className="text-3xl font-heading">{stat.value}</h3>
+                </div>
+                <div
+                  className={`rounded-base border-2 border-border ${stat.color} p-2 shadow-shadow`}
+                >
+                  {stat.icon}
+                </div>
+              </div>
+              <div className="mt-2 flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-black animate-pulse" />
+                <span className="text-[10px] font-bold uppercase">
+                  Real-time update
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <UsersContent
+          users={users}
+          metadata={metadata}
+          page={pageNumber !== undefined ? pageNumber : "1"}
+        />
       </div>
     </div>
   );

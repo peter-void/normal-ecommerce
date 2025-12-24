@@ -32,6 +32,14 @@ export async function updateCategory({
 
   const existingCategory = await prisma.category.findUnique({
     where: { id: cId },
+    include: {
+      image: {
+        select: {
+          id: true,
+          key: true,
+        },
+      },
+    },
   });
 
   if (!existingCategory) {
@@ -41,17 +49,30 @@ export async function updateCategory({
     };
   }
 
+  if (existingCategory.imageId && !image) {
+    await prisma.category.update({
+      where: { id: cId },
+      data: {
+        image: {
+          disconnect: true,
+        },
+      },
+    });
+  }
+
   await prisma.category.update({
     where: { id: cId },
     data: {
       name,
       slug,
       description: description || null,
-      image: {
-        connect: {
-          id: image,
+      ...(image && {
+        image: {
+          connect: {
+            id: image,
+          },
         },
-      },
+      }),
       isActive,
     },
   });
@@ -150,11 +171,13 @@ export async function createCategory(
       name,
       slug,
       description: description || null,
-      image: {
-        connect: {
-          id: image,
+      ...(image && {
+        image: {
+          connect: {
+            id: image,
+          },
         },
-      },
+      }),
       isActive,
     },
   });
