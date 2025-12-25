@@ -302,18 +302,6 @@ This project embraces **Neo-Brutalism** - a design trend characterized by:
 
 ---
 
-## 🤝 Contributing
-
-This is a personal portfolio project, but feedback and suggestions are welcome! Feel free to open issues or submit pull requests.
-
----
-
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
-
 ## 👨‍💻 Author
 
 **Haikal Prasetya**
