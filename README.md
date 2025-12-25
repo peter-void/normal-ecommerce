@@ -270,8 +270,9 @@ bunx tsc --noEmit
 
 ## 📸 Screenshots
 
-- Admin Dashboard
-  ![Alt text](images/admin-dashboard.png)
+### Admin Dashboard
+
+![Admin Dashboard](public/showcases/admin-dashboard.png)
 
 ## 🎨 Design Philosophy
 
