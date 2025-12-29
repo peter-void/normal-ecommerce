@@ -290,38 +290,10 @@ bunx tsc --noEmit
 
 ![Users Management](public/showcases/admin/users.png)
 
-## 🎨 Design Philosophy
-
-This project embraces **Neo-Brutalism** - a design trend characterized by:
-
-- Bold, thick borders
-- Hard drop shadows
-- Vibrant, contrasting colors
-- Playful, animated interactions
-- Raw, honest user interface
-
----
-
 ## 👨‍💻 Author
 
 **Haikal Prasetya**
 
-- Portfolio: (https://portfolio-xi-six-ou69qsqvqu.vercel.app)
+- Portfolio: (https://haikalprasetya.vercel.app)
 - LinkedIn: (https://www.linkedin.com/in/haikal-alhakim-b02626287)
 - GitHub: (https://github.com/peterVoid)
-
----
-
-## 🙏 Acknowledgments
-
-- Next.js team for the amazing framework
-- Vercel for hosting and deployment
-- Prisma for the excellent ORM
-- All open-source contributors
-
----
-
-<div align="center">
-  <p>Built with ❤️ using Next.js</p>
-  <p>© 2025 Brutal Shop. All rights reserved.</p>
-</div>
