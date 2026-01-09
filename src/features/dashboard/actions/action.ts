@@ -25,7 +25,7 @@ export async function getDashboardStats(startDate?: Date, endDate?: Date) {
   const totalRevenue = await prisma.order.aggregate({
     where: {
       status: {
-        in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"],
+        in: ["PAID", "SHIPPED", "DELIVERED"],
       },
       ...dateFilter,
     },
@@ -37,7 +37,7 @@ export async function getDashboardStats(startDate?: Date, endDate?: Date) {
   const currentMonthRevenue = await prisma.order.aggregate({
     where: {
       status: {
-        in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"],
+        in: ["PAID", "SHIPPED", "DELIVERED"],
       },
       createdAt: {
         gte: startOfCurrentMonth,
@@ -52,7 +52,7 @@ export async function getDashboardStats(startDate?: Date, endDate?: Date) {
   const previousMonthRevenue = await prisma.order.aggregate({
     where: {
       status: {
-        in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"],
+        in: ["PAID", "SHIPPED", "DELIVERED"],
       },
       createdAt: {
         gte: startOfPreviousMonth,
@@ -102,7 +102,7 @@ export async function getSalesChartData(startDate?: Date, endDate?: Date) {
     const salesData = await prisma.order.aggregate({
       where: {
         status: {
-          in: ["PAID", "PROCESSING", "SHIPPED", "DELIVERED"],
+          in: ["PAID", "SHIPPED", "DELIVERED"],
         },
         createdAt: {
           gte: monthStart,

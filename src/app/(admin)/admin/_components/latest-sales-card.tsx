@@ -54,11 +54,6 @@ const statusConfig: Record<
     icon: CheckCircle2,
     label: "Paid",
   },
-  PROCESSING: {
-    color: "bg-[#bee3f8]",
-    icon: Package,
-    label: "Processing",
-  },
   SHIPPED: {
     color: "bg-[#e9d8fd]",
     icon: Truck,

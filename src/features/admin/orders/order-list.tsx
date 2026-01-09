@@ -13,6 +13,7 @@ import type {
   Product,
   User,
 } from "@/generated/prisma/client";
+import { OrderStatus } from "@/generated/prisma/enums";
 import { cn, formatCurrency } from "@/lib/utils";
 import { format } from "date-fns";
 import {
@@ -41,7 +42,6 @@ interface Stats {
   totalRevenue: number;
   pending: number;
   shipped: number;
-  processing: number;
   delivered: number;
 }
 
@@ -87,7 +87,7 @@ export function OrderList({
       });
       setOrders(newOrders as any);
       setMetadata(newMetadata);
-      if (newStats) setStats(newStats);
+      if (newStats) setStats(newStats as Stats);
     });
   }, [page, debouncedSearch]);
 
@@ -101,6 +101,14 @@ export function OrderList({
     const params = new URLSearchParams(searchParams);
     params.set("page", newPage.toString());
     router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  const handleStatusUpdate = (orderId: string, newStatus: OrderStatus) => {
+    setOrders((prevOrders) =>
+      prevOrders.map((order) =>
+        order.id === orderId ? { ...order, status: newStatus } : order
+      )
+    );
   };
 
   return (
@@ -120,13 +128,7 @@ export function OrderList({
           icon={<Clock className="size-6" />}
           color="bg-orange-400"
         />
-        <StatCard
-          title="Active Orders"
-          value={(stats.processing + stats.shipped).toString()}
-          description="In transit & prep"
-          icon={<Truck className="size-6" />}
-          color="bg-emerald-400"
-        />
+
         <StatCard
           title="Completed"
           value={stats.delivered.toString()}
@@ -190,6 +192,9 @@ export function OrderList({
                   <UpdateStatusDropdown
                     orderId={order.id}
                     currentStatus={order.status}
+                    onStatusUpdate={(newStatus) =>
+                      handleStatusUpdate(order.id, newStatus)
+                    }
                   />
                 </div>
               </div>

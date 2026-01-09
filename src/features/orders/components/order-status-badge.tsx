@@ -13,11 +13,7 @@ const statusConfig: Record<OrderStatus, { label: string; className: string }> =
       className:
         "bg-blue-400 text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
     },
-    PROCESSING: {
-      label: "PROCESSING",
-      className:
-        "bg-purple-400 text-black border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
-    },
+
     SHIPPED: {
       label: "SHIPPED",
       className:

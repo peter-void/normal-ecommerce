@@ -69,21 +69,15 @@ export async function getAdminOrders({
     };
   });
 
-  const [
-    totalRevenue,
-    pendingOrders,
-    shippedOrders,
-    processingOrders,
-    deliveredOrders,
-  ] = await Promise.all([
-    prisma.order.aggregate({
-      _sum: { totalAmount: true },
-    }),
-    prisma.order.count({ where: { status: "PENDING" } }),
-    prisma.order.count({ where: { status: "SHIPPED" } }),
-    prisma.order.count({ where: { status: "PROCESSING" } }),
-    prisma.order.count({ where: { status: "DELIVERED" } }),
-  ]);
+  const [totalRevenue, pendingOrders, shippedOrders, deliveredOrders] =
+    await Promise.all([
+      prisma.order.aggregate({
+        _sum: { totalAmount: true },
+      }),
+      prisma.order.count({ where: { status: "PENDING" } }),
+      prisma.order.count({ where: { status: "SHIPPED" } }),
+      prisma.order.count({ where: { status: "DELIVERED" } }),
+    ]);
 
   return {
     orders: serializedOrders,
@@ -96,7 +90,6 @@ export async function getAdminOrders({
       totalRevenue: Number(totalRevenue._sum.totalAmount || 0),
       pending: pendingOrders,
       shipped: shippedOrders,
-      processing: processingOrders,
       delivered: deliveredOrders,
     },
   };

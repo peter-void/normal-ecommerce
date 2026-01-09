@@ -1,3 +1,4 @@
+import { OrderStatus } from "@/generated/prisma/enums";
 import { clsx, type ClassValue } from "clsx";
 import slugify from "slugify";
 import { twMerge } from "tailwind-merge";
@@ -70,3 +71,16 @@ export function formatCurrency(amount: number) {
     maximumFractionDigits: 0,
   }).format(amount);
 }
+
+const allowedStatusOrder: Record<OrderStatus, string[]> = {
+  [OrderStatus.CANCELLED]: [],
+  [OrderStatus.DELIVERED]: [],
+  [OrderStatus.EXPIRED]: [],
+  [OrderStatus.PAID]: [OrderStatus.SHIPPED],
+  [OrderStatus.PENDING]: [],
+  [OrderStatus.SHIPPED]: [OrderStatus.DELIVERED],
+};
+
+export const canTransition = (from: OrderStatus, status: OrderStatus) => {
+  return allowedStatusOrder[from]?.includes(status);
+};

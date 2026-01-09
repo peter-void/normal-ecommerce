@@ -1,37 +1,36 @@
 "use client";
 
-import { OrderStatus } from "@/generated/prisma/enums";
-import { useTransition } from "react";
 import { updateOrderStatus } from "@/app/(admin)/admin/orders/actions";
-import { OrderStatusBadge } from "./order-status-badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { OrderStatus } from "@/generated/prisma/enums";
+import { canTransition } from "@/lib/utils";
 import { ChevronDown, Loader2 } from "lucide-react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import { OrderStatusBadge } from "./order-status-badge";
 
 interface UpdateStatusDropdownProps {
   orderId: string;
   currentStatus: OrderStatus;
+  onStatusUpdate?: (newStatus: OrderStatus) => void;
 }
 
 export function UpdateStatusDropdown({
   orderId,
   currentStatus,
+  onStatusUpdate,
 }: UpdateStatusDropdownProps) {
+  const [orderStatus, setOrderStatus] = useState(currentStatus);
   const [isPending, startTransition] = useTransition();
 
-  // Filter out DELIVERED as it might be user controlled, or we could include it but add a warning.
-  // Based on request "status arrived/sampai itu biarkan user yang mengubahnya", we hide DELIVERED from quick selection.
-  // We also keep the current status in the list even if it is DELIVERED so it displays correctly,
-  // but we don't allow selecting it again if it's not the current one (logic below simplifies to showing allowed next states).
-
-  const allowedStatuses = Object.values(OrderStatus).filter(
-    (status) => status !== "DELIVERED"
+  const allowedStatuses = Object.values(OrderStatus).filter((status) =>
+    canTransition(orderStatus, status)
   );
 
   const handleStatusUpdate = (status: OrderStatus) => {
@@ -39,6 +38,8 @@ export function UpdateStatusDropdown({
       const result = await updateOrderStatus(orderId, status);
       if (result.success) {
         toast.success(`Order status updated to ${status}`);
+        setOrderStatus(status);
+        onStatusUpdate?.(status);
       } else {
         toast.error("Failed to update status");
       }
@@ -57,7 +58,7 @@ export function UpdateStatusDropdown({
           {isPending ? (
             <Loader2 className="size-3 animate-spin" />
           ) : (
-            <OrderStatusBadge status={currentStatus} className="border-0 p-0" />
+            <OrderStatusBadge status={orderStatus} className="border-0 p-0" />
           )}
           <ChevronDown className="size-3 text-muted-foreground" />
         </Button>
@@ -67,7 +68,7 @@ export function UpdateStatusDropdown({
           <DropdownMenuItem
             key={status}
             onClick={() => handleStatusUpdate(status)}
-            disabled={status === currentStatus}
+            disabled={status === orderStatus}
             className="flex items-center gap-2"
           >
             <OrderStatusBadge status={status} />
