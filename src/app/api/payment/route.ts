@@ -1,3 +1,4 @@
+import { OrderStatus } from "@/generated/prisma/enums";
 import { auth } from "@/lib/auth";
 import { snap } from "@/lib/midtrans";
 import prisma from "@/lib/prisma";
@@ -5,55 +6,98 @@ import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
+  const body = await req.json();
+  const { totalAmount, productDetails } = body;
+
+  let orderId = "";
+  let userId = "";
+
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    await prisma.$transaction(
+      async (tx) => {
+        const session = await auth.api.getSession({
+          headers: await headers(),
+        });
 
-    if (!session?.user) {
-      return NextResponse.json("Unauthorized", {
-        status: 401,
-      });
-    }
+        if (!session?.user) {
+          throw new Error("UNAUTHORIZED");
+        }
 
-    const body = await req.json();
+        const user = session.user;
 
-    const user = session.user;
+        userId = user.id;
 
-    const { totalAmount, productDetails } = body;
+        for (const productDetail of productDetails) {
+          const products = await tx.$queryRaw<
+            {
+              id: string;
+              stock: number;
+              price: number;
+            }[]
+          >`
+        SELECT id, stock, price FROM products WHERE id = ${productDetail.productId} FOR UPDATE`;
 
-    const getUserMainAddress = await prisma.address.findFirst({
-      where: {
-        userId: user.id,
-        mainAddress: true,
+          const product = products[0];
+
+          if (!product) {
+            throw new Error("PRODUCT_NOT_FOUND");
+          }
+
+          if (product.stock < productDetail.quantity) {
+            throw new Error("INSUFFICIENT_STOCK");
+          }
+
+          await tx.product.update({
+            where: {
+              id: productDetail.productId,
+            },
+            data: {
+              stock: {
+                decrement: productDetail.quantity,
+              },
+            },
+          });
+        }
+
+        const getUserMainAddress = await tx.address.findFirst({
+          where: {
+            userId: user.id,
+            mainAddress: true,
+          },
+        });
+
+        if (!getUserMainAddress) {
+          throw new Error("MAIN_ADDRESS_NOT_FOUND");
+        }
+
+        const order = await tx.order.create({
+          data: {
+            userId: user.id,
+            totalAmount,
+            addressId: getUserMainAddress.id,
+            status: OrderStatus.PENDING,
+          },
+        });
+
+        orderId = order.id;
+
+        await tx.orderItem.createMany({
+          data: productDetails.map((item: any) => ({
+            orderId: order.id,
+            productId: item.productId,
+            quantity: item.quantity,
+          })),
+        });
       },
-    });
-
-    if (!getUserMainAddress) {
-      return NextResponse.json("Main address not found", {
-        status: 404,
-      });
-    }
-
-    const order = await prisma.order.create({
-      data: {
-        userId: user.id,
-        totalAmount,
-        addressId: getUserMainAddress.id,
-      },
-    });
-
-    await prisma.orderItem.createMany({
-      data: productDetails.map((item: any) => ({
-        orderId: order.id,
-        productId: item.productId,
-        quantity: item.quantity,
-      })),
-    });
+      {
+        maxWait: 5000,
+        timeout: 10000,
+      }
+    );
 
     let parameter = {
       transaction_details: {
-        order_id: order.id,
+        order_id: orderId,
         gross_amount: totalAmount,
       },
       item_details: productDetails.map((item: any) => ({
@@ -66,20 +110,34 @@ export async function POST(req: NextRequest) {
         secure: true,
       },
       customer_details: {
-        id: user.id,
+        id: userId,
       },
       callbacks: {
-        finish: `${process.env.NEXT_PUBLIC_APP_URL}/payment/success`,
-        unfinish: `${process.env.NEXT_PUBLIC_APP_URL}/payment/pending`,
-        error: `${process.env.NEXT_PUBLIC_APP_URL}/payment/failed`,
+        finish: `${process.env.NEXT_PUBLIC_APP_URL}/cart/checkout`,
       },
     };
-
     const token = await snap.createTransaction(parameter);
 
     return NextResponse.json(token);
-  } catch (error) {
-    console.log(error);
+  } catch (error: any) {
+    console.error(error.message);
+
+    if (error.message === "UNAUTHORIZED") {
+      return NextResponse.json("Unauthorized", {
+        status: 401,
+      });
+    }
+
+    if (
+      error.message === "PRODUCT_NOT_FOUND" ||
+      error.message === "INSUFFICIENT_STOCK" ||
+      error.message === "MAIN_ADDRESS_NOT_FOUND"
+    ) {
+      return NextResponse.json(error.message, {
+        status: 400,
+      });
+    }
+
     return NextResponse.json("Internal Server Error", {
       status: 500,
     });

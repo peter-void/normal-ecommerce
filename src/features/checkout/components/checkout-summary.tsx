@@ -6,6 +6,7 @@ import { formatRupiah } from "@/lib/format";
 import { CartItemType } from "@/types";
 import { Loader2, LockKeyhole } from "lucide-react";
 import { useEffect, useTransition } from "react";
+import { toast } from "sonner";
 
 declare global {
   interface Window {
@@ -41,29 +42,39 @@ export function CheckoutSummary({ items }: CheckoutSummaryProps) {
 
   const handlePayNow = () => {
     startTransition(async () => {
-      const response = await fetch("/api/payment", {
-        method: "POST",
-        body: JSON.stringify({
-          totalAmount: totalPrice,
-          productDetails: items.map((item) => ({
-            productId: item.product.id,
-            quantity: item.quantity,
-            price: item.product.price,
-            name: item.product.name,
-          })),
-        }),
-      });
+      try {
+        const response = await fetch("/api/payment", {
+          method: "POST",
+          body: JSON.stringify({
+            totalAmount: totalPrice,
+            productDetails: items.map((item) => ({
+              productId: item.product.id,
+              quantity: item.quantity,
+              price: item.product.price,
+              name: item.product.name,
+            })),
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error("Failed to create payment");
-      }
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error);
+        }
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (window.snap) {
-        window.snap.pay(data.token);
-      } else {
-        window.location.href = data.url;
+        if (window.snap) {
+          window.snap.pay(data.token);
+        } else {
+          window.location.href = data.url;
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+          return;
+        }
+
+        toast.error("Failed to create payment");
       }
     });
   };

@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     const midtransData = await (snap as any).transaction.notification(body);
 
-    let status: OrderStatus;
+    let status: OrderStatus = OrderStatus.PENDING;
 
     if (midtransData.transaction_status === "settlement") {
       status = OrderStatus.PAID;
@@ -44,56 +44,67 @@ export async function POST(req: NextRequest) {
       status = OrderStatus.CANCELLED;
     }
 
-    await prisma.order.update({
-      where: {
-        id: midtransData.order_id,
-      },
-      data: {
-        status: status!,
-        paymentMethod: midtransData.payment_type,
-        paymentStatus: midtransData.transaction_status,
-      },
-    });
-
-    const getOrder = await prisma.order.findUnique({
-      where: {
-        id: midtransData.order_id,
-      },
-      select: {
-        orderItems: {
-          select: {
-            productId: true,
-            quantity: true,
-          },
-        },
-      },
-    });
-
-    if (!getOrder) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
-
-    await Promise.all(
-      getOrder.orderItems.map((item) =>
-        prisma.product.update({
+    await prisma.$transaction(
+      async (tx) => {
+        const getOrder = await tx.order.findUnique({
           where: {
-            id: item.productId,
+            id: midtransData.order_id,
+          },
+          include: {
+            orderItems: true,
+          },
+        });
+
+        if (!getOrder) {
+          throw new Error("ORDER_NOT_FOUND");
+        }
+
+        // IDEMPOTENCY CHECK
+        if (getOrder.status === OrderStatus.PAID) {
+          return;
+        }
+
+        await tx.order.update({
+          where: {
+            id: midtransData.order_id,
           },
           data: {
-            stock: {
-              decrement: item.quantity,
-            },
+            status: status!,
+            paymentMethod: midtransData.payment_type,
+            paymentStatus: midtransData.transaction_status,
           },
-        })
-      )
+        });
+
+        if (
+          status === OrderStatus.EXPIRED ||
+          status === OrderStatus.CANCELLED
+        ) {
+          for (const orderProduct of getOrder.orderItems) {
+            await tx.product.update({
+              where: {
+                id: orderProduct.productId,
+              },
+              data: {
+                stock: {
+                  increment: orderProduct.quantity,
+                },
+              },
+            });
+          }
+
+          return;
+        }
+      },
+      {
+        maxWait: 5000,
+        timeout: 60000,
+      }
     );
 
-    return NextResponse.json({ test: "data" }, { status: 200 });
-  } catch (error) {
-    console.log(error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (error: any) {
+    console.error(error.message);
+
+    return NextResponse.json({ error: "Webhook failed" }, { status: 500 });
   }
 }
