@@ -1,13 +1,29 @@
 import { getAddresses } from "@/dal/getAddresses";
-import { fetchCartItems } from "@/features/carts/actions/action";
+import {
+  fetchCartItems,
+  getSelectedCartProductAction,
+} from "@/features/carts/actions/action";
 import { CheckoutAddressSection } from "@/features/checkout/components/checkout-address-section";
 import { CheckoutCartItem } from "@/features/checkout/components/checkout-cart-item";
 import { CheckoutSummary } from "@/features/checkout/components/checkout-summary";
 import { CourierSelection } from "@/features/checkout/components/courier-selection";
 
 export default async function Page() {
-  const { items } = await fetchCartItems();
-  const addresses = await getAddresses();
+  const [cartItems, addresses, selectedCartProduct] = await Promise.all([
+    fetchCartItems(),
+    getAddresses(),
+    getSelectedCartProductAction(),
+  ]);
+
+  const { items } = cartItems;
+
+  const selectedCartProductIds = selectedCartProduct.map(
+    (item) => item.product.id
+  );
+
+  const filteredItems = items.filter((item) =>
+    selectedCartProductIds.includes(item.product.id)
+  );
 
   const mainAddress = addresses.find((address) => address.mainAddress);
 
@@ -33,12 +49,12 @@ export default async function Page() {
               <h2 className="text-xl font-heading mb-4 uppercase tracking-tight border-b-2 border-black pb-2">
                 Order Items{" "}
                 <span className="text-gray-400 text-lg ml-2 font-sans normal-case">
-                  ({items.length} items)
+                  ({filteredItems.length} items)
                 </span>
               </h2>
               <div className="flex flex-col">
-                {items.length > 0 ? (
-                  items.map((item) => (
+                {filteredItems.length > 0 ? (
+                  filteredItems.map((item) => (
                     <CheckoutCartItem key={item.id} item={item} />
                   ))
                 ) : (

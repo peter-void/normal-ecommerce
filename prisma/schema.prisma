@@ -115,11 +115,12 @@ model Product {
   category   Category @relation(fields: [categoryId], references: [id])
   images     Image[]
 
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  cartItems  CartItem[]
-  wishlists  Wishlist[]
-  orderItems OrderItem[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  cartItems     CartItem[]
+  wishlists     Wishlist[]
+  orderItems    OrderItem[]
+  selectedItems SelectedItem[]
 
   @@map("products")
 }
@@ -147,10 +148,26 @@ model Cart {
 
   items CartItem[]
 
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  selectedItems SelectedItem[]
+
+  @@map("carts")
+}
+
+model SelectedItem {
+  id String @id @default(cuid())
+
+  cartId String
+  cart   Cart   @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("carts")
+  @@map("selected_items")
 }
 
 model CartItem {

@@ -13,7 +13,7 @@ export function OrderSummary() {
 
   useEffect(() => {
     const total = selectedItems.reduce((acc, id) => {
-      const item = cartItems.find((item) => item.id === id);
+      const item = cartItems.find((item) => item.product.id === id);
       if (!item) return acc;
       return acc + parseDecimalPrice(item.product.price) * item.quantity;
     }, 0);
@@ -99,7 +99,6 @@ export function OrderSummary() {
           </div>
         </div>
 
-        {/* Bottom ZigZag */}
         <div className="h-4 bg-white w-full relative overflow-hidden -mb-px border-t-2 border-dashed border-gray-200">
           <div className="absolute bottom-0 left-0 w-full h-full bg-[linear-gradient(45deg,transparent_75%,black_75%),linear-gradient(-45deg,transparent_75%,black_75%)] bg-size-[16px_16px] bg-position-[0_8px]" />
         </div>

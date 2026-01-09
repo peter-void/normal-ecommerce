@@ -1,6 +1,7 @@
 "use server";
 
 import { ITEMS_PER_PAGE } from "@/constants";
+import { getSelectedCartProduct } from "@/dal/get-selected-cart-product";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { serializeProduct } from "@/lib/utils";
@@ -211,4 +212,10 @@ export async function addToCart(
       message: "Failed to add to cart",
     };
   }
+}
+
+export async function getSelectedCartProductAction() {
+  const selectedCartProduct = await getSelectedCartProduct();
+
+  return selectedCartProduct;
 }

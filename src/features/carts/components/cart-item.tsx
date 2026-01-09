@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useCartItem } from "@/hooks/use-cart-item";
 import { formatRupiah } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -7,18 +8,19 @@ import { CartItemType } from "@/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { removeItem, updateCartItemQuantity } from "../actions/action";
-import { Button } from "@/components/ui/button";
+import {
+  getSelectedCartProductAction,
+  removeItem,
+  updateCartItemQuantity,
+} from "../actions/action";
+import { toast } from "sonner";
 
 interface CartItemProps {
   item: CartItemType;
 }
 
 export function CartItem({ item }: CartItemProps) {
-  const router = useRouter();
-
   const {
     setCartItems,
     incrementQuantity,
@@ -84,7 +86,44 @@ export function CartItem({ item }: CartItemProps) {
     });
   }, []);
 
-  const isSelected = selectedItems.includes(item.id);
+  let isSelected = selectedItems.includes(item.product.id);
+
+  const handleSelectedItemClick = async () => {
+    if (isSelected) {
+      isSelected = false;
+      setSelectedItems((prev) => prev.filter((id) => id !== item.product.id));
+    } else {
+      isSelected = true;
+      setSelectedItems((prev) => [...prev, item.product.id]);
+    }
+
+    try {
+      const response = await fetch("/api/products/selected-item", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId: item.product.id,
+          cartId: item.cartId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update selected items");
+      }
+    } catch (error) {
+      toast.error("Failed to update selected items");
+    }
+  };
+
+  useEffect(() => {
+    const fetchSelectedCartProduct = async () => {
+      const selectedCartProduct = await getSelectedCartProductAction();
+      setSelectedItems(selectedCartProduct.map((item) => item.product.id));
+    };
+    fetchSelectedCartProduct();
+  }, []);
 
   return (
     <motion.div
@@ -119,13 +158,7 @@ export function CartItem({ item }: CartItemProps) {
           ? "z-10 bg-gray-50 border-black"
           : "z-0 bg-white border-black"
       )}
-      onClick={() => {
-        if (isSelected) {
-          setSelectedItems((prev) => prev.filter((id) => id !== item.id));
-        } else {
-          setSelectedItems((prev) => [...prev, item.id]);
-        }
-      }}
+      onClick={handleSelectedItemClick}
     >
       <AnimatePresence>
         {isSelected && (
