@@ -34,6 +34,7 @@ const SORT_LABELS: Record<SortOption, string> = {
   [SortOption.NEWEST]: "Newest First",
   [SortOption.PRICE_ASC]: "Price: Low → High",
   [SortOption.PRICE_DESC]: "Price: High → Low",
+  [SortOption.BEST_SELLERS]: "Best Sellers",
 };
 
 export function ProductListing({
