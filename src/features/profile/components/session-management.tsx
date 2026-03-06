@@ -20,19 +20,21 @@ export function SessionManagement({
   sessions,
 }: SessionManagementProps) {
   const currentSession = sessions.find(
-    (session) => session.token === currentSessionToken
+    (session) => session.token === currentSessionToken,
   );
 
   const otherSessions = sessions.filter(
-    (session) => session.token !== currentSessionToken
+    (session) => session.token !== currentSessionToken,
   );
 
   return (
     <div className="space-y-12">
       <section className="space-y-6">
-        <div className="flex items-center gap-3 border-b-4 border-black pb-4">
-          <div className="h-4 w-4 bg-cyan-400 border-2 border-black" />
-          <h2 className="text-xl font-black uppercase">Current Session</h2>
+        <div className="flex items-center gap-3 border-b border-gray-200 pb-2">
+          <div className="h-2 w-2 bg-black rounded-full" />
+          <h2 className="text-lg font-bold uppercase tracking-widest text-black">
+            Current Session
+          </h2>
         </div>
         {currentSession && (
           <SessionCard session={currentSession} isCurrentSession />
@@ -41,9 +43,11 @@ export function SessionManagement({
 
       {otherSessions.length > 0 && (
         <section className="space-y-6">
-          <div className="flex items-center gap-3 border-b-4 border-black pb-4">
-            <div className="h-4 w-4 bg-yellow-400 border-2 border-black" />
-            <h2 className="text-xl font-black uppercase">Active Sessions</h2>
+          <div className="flex items-center gap-3 border-b border-gray-200 pb-2">
+            <div className="h-2 w-2 bg-gray-300 rounded-full" />
+            <h2 className="text-lg font-bold uppercase tracking-widest text-black">
+              Active Sessions
+            </h2>
           </div>
           <div className="grid gap-6">
             {otherSessions.map((session) => (
@@ -86,7 +90,7 @@ function SessionCard({
         onSuccess: () => {
           router.refresh();
         },
-      }
+      },
     );
   };
 
@@ -94,50 +98,47 @@ function SessionCard({
     <div
       className={`
       relative group
-      border-4 border-black p-6 
-      ${isCurrentSession ? "bg-cyan-50" : "bg-white"}
-      shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]
+      border p-6 
+      ${isCurrentSession ? "border-black bg-gray-50" : "border-gray-200 bg-white"}
       transition-all duration-200
-      hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
     `}
     >
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-start gap-5">
           <div
             className={`
-            p-4 border-4 border-black 
-            ${isCurrentSession ? "bg-cyan-400" : "bg-yellow-400"}
-            shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
+            p-4 border 
+            ${isCurrentSession ? "border-black bg-white" : "border-gray-200 bg-gray-50 text-gray-400"}
           `}
           >
             {userAgentInfo?.device.type === "mobile" ? (
-              <Smartphone size={32} strokeWidth={3} />
+              <Smartphone size={24} strokeWidth={2} />
             ) : (
-              <Monitor size={32} strokeWidth={3} />
+              <Monitor size={24} strokeWidth={2} />
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 pt-1">
             <div className="flex flex-wrap items-center gap-3">
-              <h3 className="text-xl font-black uppercase">
+              <h3 className="text-lg font-bold uppercase tracking-tight text-black">
                 {getBrowserInformation()}
               </h3>
               {isCurrentSession && (
-                <Badge className="bg-black text-white border-2 border-black rounded-none px-3 font-bold uppercase tracking-wider">
+                <Badge className="bg-black text-white hover:bg-black border-0 rounded-none px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest">
                   Active Now
                 </Badge>
               )}
             </div>
 
             <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground uppercase">
-                <span className="w-20">Created</span>
+              <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <span className="w-16">Created</span>
                 <span className="text-black">
                   {formatDate(session.createdAt, "PPP p")}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-sm font-bold text-muted-foreground uppercase">
-                <span className="w-20">Expires</span>
+              <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <span className="w-16">Expires</span>
                 <span className="text-black">
                   {formatDate(session.expiresAt, "PPP p")}
                 </span>
@@ -145,7 +146,7 @@ function SessionCard({
             </div>
 
             {session.ipAddress && (
-              <p className="text-xs font-black text-muted-foreground/60 uppercase">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pt-2">
                 IP: {session.ipAddress}
               </p>
             )}
@@ -157,16 +158,15 @@ function SessionCard({
             type="button"
             onClick={revokeSession}
             className="
-              h-auto py-4 px-6
-              bg-red-500 hover:bg-red-600 
-              text-white border-4 border-black rounded-none
-              shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]
-              hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none
-              font-black uppercase tracking-tighter
+              h-10 px-6
+              bg-white hover:bg-red-50 hover:border-red-500 hover:text-red-500
+              text-black border border-gray-200 rounded-none
+              transition-colors duration-200
+              font-bold uppercase tracking-widest text-xs
               flex items-center gap-2
             "
           >
-            <Trash2Icon size={20} strokeWidth={3} />
+            <Trash2Icon size={16} strokeWidth={2} className="mr-1" />
             End Session
           </Button>
         )}

@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
     const { slug } = await params;
@@ -31,18 +31,28 @@ export async function GET(
     const validAvailability =
       typeof availability === "string" && availability !== "undefined";
 
+    const sort = searchParams.get("sort") || "newest";
+
+    // Build orderBy from sort param
+    let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: "desc" };
+    if (sort === "price-asc") orderBy = { price: "asc" };
+    else if (sort === "price-desc") orderBy = { price: "desc" };
+    else if (sort === "best-sellers")
+      orderBy = { orderItems: { _count: "desc" } };
+
     const category = await getPublicCategoryBySlug(slug);
 
     if (!category) {
       return NextResponse.json(
         { message: "Category not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     const products = await prisma.product.findMany({
       where: {
         category: { slug },
+        isActive: true,
         ...(validQ && {
           name: {
             contains: q,
@@ -62,18 +72,10 @@ export async function GET(
             }
           : undefined),
         ...(validAvailability && availability === "in_stock"
-          ? {
-              stock: {
-                gte: 1,
-              },
-            }
+          ? { stock: { gte: 1 } }
           : availability === "out_of_stock"
-          ? {
-              stock: {
-                equals: 0,
-              },
-            }
-          : undefined),
+            ? { stock: { equals: 0 } }
+            : undefined),
       },
       include: {
         images: true,
@@ -83,9 +85,7 @@ export async function GET(
         cursor: { id: cursor },
         skip: 1,
       }),
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy,
     });
 
     const hasMore = products.length > ITEMS_PER_PAGE;
@@ -93,7 +93,7 @@ export async function GET(
     const nextCursor = hasMore ? products[ITEMS_PER_PAGE - 1].id : undefined;
 
     const serializedProducts = items.map((product) =>
-      serializeProduct(product)
+      serializeProduct(product),
     );
 
     const data = {
@@ -110,7 +110,7 @@ export async function GET(
     console.log({ error });
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

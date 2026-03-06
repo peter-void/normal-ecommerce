@@ -51,7 +51,7 @@ export function CustomersCard({ initialData }: CustomersCardProps) {
         const result = await getRecentCustomers(
           page,
           5,
-          debouncedSearch || undefined
+          debouncedSearch || undefined,
         );
         setData(result);
       } catch (error) {
@@ -69,9 +69,11 @@ export function CustomersCard({ initialData }: CustomersCardProps) {
   }, [initialData.meta.page]);
 
   return (
-    <div className="bg-white border-4 border-black p-6 rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-full">
+    <div className="bg-white border border-gray-200 p-6 h-full">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-black uppercase italic">Customers</h2>
+        <h2 className="text-xl font-bold uppercase tracking-tight">
+          Customers
+        </h2>
         <Calendar className="h-6 w-6" />
       </div>
 
@@ -82,7 +84,7 @@ export function CustomersCard({ initialData }: CustomersCardProps) {
           placeholder="Type to search"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 border-2 border-black rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-black"
+          className="w-full pl-10 pr-4 py-3 border border-gray-300 font-bold focus:outline-none focus:border-black transition-colors rounded-none"
         />
       </div>
 
@@ -106,7 +108,7 @@ export function CustomersCard({ initialData }: CustomersCardProps) {
             {data.data.map((customer, i) => (
               <div key={i} className="flex justify-between items-start group">
                 <div className="flex flex-col">
-                  <span className="font-black text-lg group-hover:text-[#a888f8] transition-colors">
+                  <span className="font-black text-lg group-hover:text-black transition-colors">
                     {customer.name}
                   </span>
                   <span className="text-xs font-bold text-gray-500 uppercase">
@@ -122,7 +124,7 @@ export function CustomersCard({ initialData }: CustomersCardProps) {
         )}
       </div>
 
-      <div className="mt-12 flex items-center justify-between pt-6 border-t-2 border-dashed border-black">
+      <div className="mt-12 flex items-center justify-between pt-6 border-t border-gray-200">
         <div className="text-xs font-bold text-gray-500 uppercase tracking-wide">
           Page {data.meta.page} of {data.meta.totalPages}
         </div>

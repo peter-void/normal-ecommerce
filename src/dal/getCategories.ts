@@ -9,9 +9,13 @@ export type GetCategoriesType = Awaited<ReturnType<typeof getCategories>>;
 export async function getCategories({
   take,
   skip,
+  search,
+  status,
 }: {
   take: number;
   skip: number;
+  search?: string;
+  status?: string;
 }) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -21,9 +25,21 @@ export async function getCategories({
     redirect("/signin");
   }
 
+  const where = {
+    ...(search
+      ? { name: { contains: search, mode: "insensitive" as const } }
+      : {}),
+    ...(status === "active"
+      ? { isActive: true }
+      : status === "inactive"
+        ? { isActive: false }
+        : {}),
+  };
+
   const categories = await prisma.category.findMany({
     take,
     skip,
+    where,
     orderBy: {
       createdAt: "desc",
     },
@@ -33,7 +49,7 @@ export async function getCategories({
     },
   });
 
-  const total = await prisma.category.count();
+  const total = await prisma.category.count({ where });
 
   const serialiseCategoryProducts = categories.map((category) => ({
     ...category,

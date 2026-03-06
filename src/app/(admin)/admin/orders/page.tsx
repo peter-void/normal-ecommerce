@@ -18,10 +18,10 @@ export default async function Page({
   });
 
   return (
-    <div className="min-h-screen bg-[#E9E1FF] p-6 lg:p-10 space-y-12">
+    <div className="min-h-screen bg-white p-6 lg:p-10 space-y-12">
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex flex-col gap-2">
-          <h1 className="text-6xl font-black tracking-tighter text-black">
+          <h1 className="text-4xl font-black uppercase tracking-tighter">
             Order Management
           </h1>
           <p className="text-lg font-bold text-black/60">

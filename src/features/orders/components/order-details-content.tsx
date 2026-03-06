@@ -2,20 +2,21 @@
 import { useState } from "react";
 
 import { OrderWithItems } from "@/app/(consumer)/profile/order/[id]/page";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { formatRupiah } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {
   ArrowLeft,
-  Calendar,
-  CreditCard,
-  Hash,
-  MapPin,
-  Package,
-  Truck,
+  CalendarIcon,
+  CheckCircle2Icon,
+  CircleDotIcon,
+  CreditCardIcon,
+  HashIcon,
+  MapPinIcon,
+  PackageIcon,
+  TruckIcon,
+  XCircleIcon,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,256 +25,430 @@ interface OrderDetailsContentProps {
   order: OrderWithItems;
 }
 
+const STATUS_STYLES: Record<string, string> = {
+  paid: "bg-black text-white",
+  completed: "bg-black text-white",
+  pending: "bg-gray-200 text-gray-700",
+  cancelled: "bg-red-100 text-red-700",
+  failed: "bg-red-100 text-red-700",
+};
+
+// The normal progression steps
+const TIMELINE_STEPS = [
+  {
+    key: "PENDING",
+    label: "Order Placed",
+    description: "Your order has been received and is awaiting payment.",
+    icon: PackageIcon,
+  },
+  {
+    key: "PAID",
+    label: "Payment Confirmed",
+    description: "Payment verified. Your order is being prepared.",
+    icon: CreditCardIcon,
+  },
+  {
+    key: "SHIPPED",
+    label: "Shipped",
+    description: "Your order is on the way to your address.",
+    icon: TruckIcon,
+  },
+  {
+    key: "DELIVERED",
+    label: "Delivered",
+    description: "Your order has been delivered successfully.",
+    icon: CheckCircle2Icon,
+  },
+];
+
+const STATUS_ORDER_INDEX: Record<string, number> = {
+  PENDING: 0,
+  PAID: 1,
+  SHIPPED: 2,
+  DELIVERED: 3,
+  CANCELLED: -1,
+  EXPIRED: -1,
+};
+
+function OrderTimeline({ status }: { status: string }) {
+  const currentIndex = STATUS_ORDER_INDEX[status.toUpperCase()] ?? 0;
+  const isCancelledOrExpired = status === "CANCELLED" || status === "EXPIRED";
+
+  if (isCancelledOrExpired) {
+    return (
+      <div className="border border-red-100 bg-red-50 px-6 py-5 flex items-center gap-4">
+        <XCircleIcon className="w-8 h-8 text-red-400 shrink-0" />
+        <div>
+          <p className="font-black text-sm uppercase tracking-widest text-red-700">
+            Order {status.charAt(0) + status.slice(1).toLowerCase()}
+          </p>
+          <p className="text-xs text-red-500 mt-0.5">
+            {status === "CANCELLED"
+              ? "This order was cancelled."
+              : "This order has expired due to non-payment."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border border-gray-200 px-6 py-6">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-6">
+        Order Progress
+      </p>
+      <div className="flex items-start gap-0">
+        {TIMELINE_STEPS.map((step, index) => {
+          const Icon = step.icon;
+          const isCompleted = index < currentIndex;
+          const isCurrent = index === currentIndex;
+          const isUpcoming = index > currentIndex;
+          const isLast = index === TIMELINE_STEPS.length - 1;
+
+          return (
+            <div key={step.key} className="flex-1 flex flex-col items-center">
+              {/* Connector line + circle row */}
+              <div className="flex items-center w-full">
+                {/* Left line */}
+                <div
+                  className={cn(
+                    "h-0.5 flex-1",
+                    index === 0 ? "invisible" : "",
+                    isCompleted || isCurrent ? "bg-black" : "bg-gray-200",
+                  )}
+                />
+                {/* Icon circle */}
+                <div
+                  className={cn(
+                    "w-9 h-9 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors",
+                    isCompleted
+                      ? "bg-black border-black text-white"
+                      : isCurrent
+                        ? "bg-white border-black text-black"
+                        : "bg-white border-gray-200 text-gray-300",
+                  )}
+                >
+                  {isCurrent ? (
+                    <CircleDotIcon className="w-4 h-4" />
+                  ) : (
+                    <Icon className="w-4 h-4" />
+                  )}
+                </div>
+                {/* Right line */}
+                <div
+                  className={cn(
+                    "h-0.5 flex-1",
+                    isLast ? "invisible" : "",
+                    isCompleted ? "bg-black" : "bg-gray-200",
+                  )}
+                />
+              </div>
+
+              {/* Label below */}
+              <div className="mt-3 text-center px-1">
+                <p
+                  className={cn(
+                    "text-[10px] font-black uppercase tracking-wide leading-tight",
+                    isCompleted || isCurrent ? "text-black" : "text-gray-300",
+                  )}
+                >
+                  {step.label}
+                </p>
+                {isCurrent && (
+                  <p className="text-[10px] text-gray-500 mt-1 leading-snug hidden sm:block">
+                    {step.description}
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function OrderDetailsContent({ order }: OrderDetailsContentProps) {
   const [isAddressExpanded, setIsAddressExpanded] = useState(false);
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "paid":
-      case "completed":
-        return "bg-green-400 text-black border-black";
-      case "pending":
-        return "bg-yellow-300 text-black border-black";
-      case "cancelled":
-      case "failed":
-        return "bg-red-400 text-black border-black";
-      default:
-        return "bg-gray-200 text-black border-black";
-    }
-  };
+  const statusKey = order.status.toLowerCase();
+  const statusStyle = STATUS_STYLES[statusKey] ?? "bg-gray-100 text-gray-600";
+  const paymentStatusKey = (order.paymentStatus ?? "pending").toLowerCase();
+  const paymentStatusStyle =
+    STATUS_STYLES[paymentStatusKey] ?? "bg-gray-100 text-gray-600";
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-12">
+    <div className="max-w-4xl mx-auto space-y-6 pb-12">
+      {/* Back + Title */}
       <div className="flex items-center gap-4">
         <Button
           size="icon"
-          className="border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+          variant="outline"
+          className="border border-gray-200 hover:border-black rounded-none transition-colors"
           asChild
         >
           <Link href="/profile/order">
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5" />
           </Link>
         </Button>
-        <h1 className="text-4xl font-black uppercase italic tracking-tighter">
-          Order Details
-        </h1>
+        <div>
+          <h1 className="text-2xl font-black uppercase tracking-tight">
+            Order Details
+          </h1>
+          <p className="text-xs text-gray-500 font-medium mt-0.5">
+            #{order.id.slice(-8).toUpperCase()}
+          </p>
+        </div>
       </div>
 
-      <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-0 overflow-hidden bg-white">
-        <div className="relative border-b-4 border-black bg-yellow-400 overflow-hidden">
-          <div
-            className="absolute inset-0 opacity-20 pointer-events-none"
-            style={{
-              backgroundImage: "radial-gradient(#000 2px, transparent 2px)",
-              backgroundSize: "16px 16px",
-            }}
-          />
-          <div className="relative p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 z-10">
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="bg-black text-white px-4 py-2 font-black text-2xl md:text-3xl uppercase italic tracking-tighter shadow-[-4px_4px_0px_0px_rgba(255,255,255,1)] transform -rotate-1">
-                  #{order.id.slice(-6).toUpperCase()}
-                </div>
-                <Badge
-                  className={cn(
-                    "rounded-sm border-2 px-4 py-1.5 font-bold text-sm uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]",
-                    getStatusColor(order.status)
-                  )}
-                >
-                  {order.status}
-                </Badge>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-8">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  <div>
-                    <p className="text-[10px] font-bold uppercase text-black/60 leading-none">
-                      Placed On
-                    </p>
-                    <p className="text-base font-black">
-                      {format(new Date(order.createdAt), "dd MMM yyyy, HH:mm")}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Hash className="w-5 h-5" />
-                  <div>
-                    <p className="text-[10px] font-bold uppercase text-black/60 leading-none">
-                      Full Reference
-                    </p>
-                    <p className="text-sm font-black break-all">{order.id}</p>
-                  </div>
-                </div>
-              </div>
+      {/* Status Timeline */}
+      <OrderTimeline status={order.status} />
+
+      {/* Order Header Card */}
+      <div className="border border-gray-200">
+        <div className="px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 bg-gray-50">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="w-10 h-10 bg-black flex items-center justify-center shrink-0">
+              <PackageIcon className="w-5 h-5 text-white" />
             </div>
-            <div className="bg-white border-2 border-black p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] self-start md:self-center">
-              <p className="text-xs font-bold uppercase text-muted-foreground mb-1">
-                Total Bill
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 leading-none mb-0.5">
+                Order Reference
               </p>
-              <p className="text-2xl md:text-3xl font-black tabular-nums tracking-tighter">
-                {formatRupiah(order.totalAmount)}
+              <p className="font-black text-base uppercase tracking-tight">
+                #{order.id.slice(-8).toUpperCase()}
+              </p>
+            </div>
+            <span
+              className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 ${statusStyle}`}
+            >
+              {order.status}
+            </span>
+          </div>
+          <div className="text-right">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 leading-none mb-1">
+              Total Bill
+            </p>
+            <p className="text-2xl font-black tabular-nums tracking-tight">
+              {formatRupiah(order.totalAmount)}
+            </p>
+          </div>
+        </div>
+
+        {/* Meta Info */}
+        <div className="px-6 py-4 flex flex-wrap gap-6">
+          <div className="flex items-center gap-2">
+            <CalendarIcon className="w-4 h-4 text-gray-400" />
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 leading-none">
+                Placed On
+              </p>
+              <p className="text-sm font-bold">
+                {format(new Date(order.createdAt), "dd MMM yyyy, HH:mm")}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <CalendarIcon className="w-4 h-4 text-gray-400" />
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 leading-none">
+                Last Updated
+              </p>
+              <p className="text-sm font-bold">
+                {format(new Date(order.updatedAt), "dd MMM yyyy, HH:mm")}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <HashIcon className="w-4 h-4 text-gray-400" />
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 leading-none">
+                Full Reference
+              </p>
+              <p className="text-xs font-bold text-gray-600 break-all max-w-xs">
+                {order.id}
               </p>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Items Section */}
-        <div className="p-6 sm:p-8 space-y-6">
-          <h3 className="text-xl font-black uppercase italic flex items-center gap-2">
-            <Package className="w-6 h-6" /> Items Ordered
+      {/* Items Ordered */}
+      <div className="border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-3">
+          <PackageIcon className="w-4 h-4 text-gray-500" />
+          <h3 className="text-sm font-black uppercase tracking-widest">
+            Items Ordered
           </h3>
-          <div className="grid gap-4">
-            {order.orderItems.map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-col sm:flex-row gap-4 p-4 border-2 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
-              >
-                <div className="relative aspect-square w-full sm:w-24 shrink-0 border-2 border-black bg-gray-50 overflow-hidden">
-                  {item.product.images[0]?.src ? (
-                    <Image
-                      src={item.product.images[0].src}
-                      alt={item.product.name}
-                      fill
-                      unoptimized
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center font-bold text-xs uppercase">
-                      No Img
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 flex flex-col justify-between py-1">
-                  <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-2">
-                    <h4 className="font-black text-lg md:text-xl uppercase leading-tight">
-                      {item.product.name}
-                      <span className="ml-2 inline-block bg-black text-white px-2 py-0.25 text-sm transform rotate-2">
-                        x{item.quantity}
-                      </span>
-                    </h4>
-                    <p className="font-black text-lg tabular-nums">
-                      {formatRupiah(item.product.price.toString())}
-                    </p>
+          <span className="text-xs font-bold text-gray-400">
+            ({order.orderItems.length})
+          </span>
+        </div>
+        <div className="divide-y divide-gray-100">
+          {order.orderItems.map((item) => (
+            <div
+              key={item.id}
+              className="px-6 py-5 flex flex-col sm:flex-row gap-4"
+            >
+              <div className="relative w-full sm:w-20 aspect-square sm:aspect-auto sm:h-20 shrink-0 bg-gray-50 border border-gray-100 overflow-hidden">
+                {item.product.images[0]?.src ? (
+                  <Image
+                    src={item.product.images[0].src}
+                    alt={item.product.name}
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[10px] font-bold text-gray-400 uppercase">
+                    No Img
                   </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <Badge className="border-black border-2 font-bold uppercase text-[10px]">
+                )}
+              </div>
+              <div className="flex flex-1 flex-col sm:flex-row sm:justify-between sm:items-start gap-2 py-1 min-w-0">
+                <div className="min-w-0">
+                  <h4 className="font-black text-base uppercase tracking-tight leading-tight line-clamp-2">
+                    {item.product.name}
+                  </h4>
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest bg-gray-100 text-gray-600 px-2 py-1">
                       {item.product.category?.name || "General"}
-                    </Badge>
+                    </span>
+                    <span className="text-xs font-bold text-gray-500">
+                      Qty: {item.quantity}
+                    </span>
                   </div>
                 </div>
+                <p className="font-black text-base tabular-nums shrink-0">
+                  {formatRupiah(item.product.price.toString())}
+                </p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
+      </div>
 
-        <div className="grid md:grid-cols-2 border-t-4 border-black">
-          <div className="p-6 sm:p-8 border-b-4 md:border-b-0 md:border-r-4 border-black space-y-6 bg-purple-100">
-            <h3 className="text-xl font-black uppercase italic flex items-center gap-2">
-              <Truck className="w-6 h-6" /> Shipping Info
+      {/* Shipping + Payment */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Shipping Info */}
+        <div className="border border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-3">
+            <TruckIcon className="w-4 h-4 text-gray-500" />
+            <h3 className="text-sm font-black uppercase tracking-widest">
+              Shipping Info
             </h3>
-            <div className="bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
-              <div className="flex gap-3">
-                <MapPin className="w-5 h-5 shrink-0 mt-1" />
-                <div className="space-y-3">
-                  {order.address ? (
-                    <>
-                      <div>
-                        <p className="font-black uppercase text-xs text-black/60 leading-none mb-1">
-                          Receiver
-                        </p>
-                        <p className="font-bold text-sm uppercase">
-                          {order.address.receiverName}
-                        </p>
-                        <p className="text-xs font-bold text-black/60">
-                          {order.address.phoneNumber}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="font-black uppercase text-xs text-black/60 leading-none mb-1">
-                          Address Label
-                        </p>
-                        <Badge className="bg-black text-white text-[10px] font-black uppercase rounded-sm px-1.5 py-0">
-                          {order.address.label}
-                        </Badge>
-                      </div>
-                      <div>
-                        <p className="font-black uppercase text-xs text-black/60 leading-none mb-1">
-                          Full Address
-                        </p>
-                        <div className="relative">
-                          <p
-                            className={cn(
-                              "text-sm font-medium leading-relaxed transition-all duration-300",
-                              !isAddressExpanded && "line-clamp-3"
-                            )}
-                          >
-                            {order.address.completeAddress}
-                            <br />
-                            {order.address.subdistrict}, {order.address.city}
-                            <br />
-                            {order.address.province}, {order.address.postalCode}
-                          </p>
-                          <button
-                            onClick={() =>
-                              setIsAddressExpanded(!isAddressExpanded)
-                            }
-                            className="mt-2 text-[10px] font-black uppercase underline decoration-2 underline-offset-2 hover:bg-black hover:text-white px-1 transition-colors"
-                          >
-                            {isAddressExpanded ? "Show Less" : "Show More"}
-                          </button>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
+          </div>
+          <div className="px-6 py-5 space-y-5">
+            {order.address ? (
+              <>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 leading-none mb-1.5">
+                    Receiver
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
+                      <MapPinIcon className="w-4 h-4 text-gray-500" />
+                    </div>
                     <div>
-                      <p className="font-black uppercase text-sm">
-                        No Main Address Found
+                      <p className="font-bold text-sm uppercase tracking-tight">
+                        {order.address.receiverName}
                       </p>
-                      <p className="text-xs text-black/60 italic font-bold uppercase mt-2 leading-relaxed">
-                        Please set a main address in your profile settings to
-                        see shipping details for future orders.
+                      <p className="text-xs text-gray-500 font-medium">
+                        {order.address.phoneNumber}
                       </p>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
 
-          <div className="p-6 sm:p-8 space-y-6 bg-cyan-100">
-            <h3 className="text-xl font-black uppercase italic flex items-center gap-2">
-              <CreditCard className="w-6 h-6" /> Payment Details
-            </h3>
-            <div className="bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
-              <div className="flex justify-between items-center">
-                <p className="font-bold uppercase text-sm">Payment Method</p>
-                <Badge className="bg-black text-white uppercase font-black">
-                  {order.paymentMethod || "Not Selected"}
-                </Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <p className="font-bold uppercase text-sm">Payment Status</p>
-                <Badge
-                  className={cn(
-                    "uppercase font-black",
-                    getStatusColor(order.paymentStatus || "PENDING")
-                  )}
-                >
-                  {order.paymentStatus || "PENDING"}
-                </Badge>
-              </div>
-              <div className="pt-4 border-t-2 border-black border-dashed">
-                <div className="flex justify-between items-center font-black">
-                  <p className="uppercase">Total Amount Paid</p>
-                  <p className="text-xl tabular-nums">
-                    {formatRupiah(order.totalAmount)}
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 leading-none mb-1.5">
+                    Address Label
                   </p>
+                  <span className="text-[10px] font-black uppercase tracking-widest bg-black text-white px-2.5 py-1">
+                    {order.address.label}
+                  </span>
                 </div>
+
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 leading-none mb-1.5">
+                    Full Address
+                  </p>
+                  <div className="bg-gray-50 border border-gray-100 p-4">
+                    <p
+                      className={cn(
+                        "text-sm font-medium leading-relaxed text-gray-700 transition-all duration-300",
+                        !isAddressExpanded && "line-clamp-3",
+                      )}
+                    >
+                      {order.address.completeAddress}
+                      <br />
+                      {order.address.subdistrict}, {order.address.city}
+                      <br />
+                      {order.address.province}, {order.address.postalCode}
+                    </p>
+                    <button
+                      onClick={() => setIsAddressExpanded(!isAddressExpanded)}
+                      className="mt-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-black underline underline-offset-2 transition-colors"
+                    >
+                      {isAddressExpanded ? "Show Less" : "Show More"}
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <MapPinIcon className="w-8 h-8 text-gray-300 mb-3" />
+                <p className="font-bold uppercase text-sm text-gray-500">
+                  No Address Found
+                </p>
+                <p className="text-xs text-gray-400 mt-1 max-w-xs">
+                  Please set a main address in your profile settings.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Payment Details */}
+        <div className="border border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200 flex items-center gap-3">
+            <CreditCardIcon className="w-4 h-4 text-gray-500" />
+            <h3 className="text-sm font-black uppercase tracking-widest">
+              Payment Details
+            </h3>
+          </div>
+          <div className="px-6 py-5 space-y-4">
+            <div className="flex justify-between items-center">
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-500">
+                Payment Method
+              </p>
+              <span className="text-[10px] font-black uppercase tracking-widest bg-black text-white px-2.5 py-1">
+                {order.paymentMethod || "Not Selected"}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-500">
+                Payment Status
+              </p>
+              <span
+                className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 ${paymentStatusStyle}`}
+              >
+                {order.paymentStatus || "Pending"}
+              </span>
+            </div>
+            <div className="pt-4 border-t border-gray-100">
+              <div className="flex justify-between items-center">
+                <p className="text-xs font-bold uppercase tracking-widest text-gray-500">
+                  Total Amount Paid
+                </p>
+                <p className="text-xl font-black tabular-nums tracking-tight">
+                  {formatRupiah(order.totalAmount)}
+                </p>
               </div>
             </div>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import {
 import { CheckoutAddressSection } from "@/features/checkout/components/checkout-address-section";
 import { CheckoutCartItem } from "@/features/checkout/components/checkout-cart-item";
 import { CheckoutSummary } from "@/features/checkout/components/checkout-summary";
-import { CourierSelection } from "@/features/checkout/components/courier-selection";
+import { CourierSelectionWrapper } from "@/features/checkout/components/courier-selection-wrapper";
 
 export default async function Page() {
   const [cartItems, addresses, selectedCartProduct] = await Promise.all([
@@ -18,11 +18,11 @@ export default async function Page() {
   const { items } = cartItems;
 
   const selectedCartProductIds = selectedCartProduct.map(
-    (item) => item.product.id
+    (item) => item.product.id,
   );
 
   const filteredItems = items.filter((item) =>
-    selectedCartProductIds.includes(item.product.id)
+    selectedCartProductIds.includes(item.product.id),
   );
 
   const mainAddress = addresses.find((address) => address.mainAddress);
@@ -31,9 +31,6 @@ export default async function Page() {
     <div className="min-h-screen bg-background p-6 md:p-12 font-base mt-20">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 flex items-center gap-4">
-          <div className="inline-block bg-chart-5 px-3 py-1 text-xs font-bold uppercase text-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -rotate-2">
-            Secure Checkout
-          </div>
           <h1 className="text-3xl md:text-4xl font-heading uppercase tracking-tighter">
             Checkout
           </h1>
@@ -66,7 +63,10 @@ export default async function Page() {
             </section>
 
             <section className="bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-6">
-              <CourierSelection items={items} mainAddress={mainAddress!} />
+              <CourierSelectionWrapper
+                items={items}
+                mainAddress={mainAddress}
+              />
             </section>
           </div>
 

@@ -7,12 +7,12 @@ export const createProductSchema = z.object({
     .optional()
     .nullable()
     .transform((value) => value || null),
-  stock: z.number().int().min(1, { error: "Stock must be at least 1" }),
+  stock: z.number().int().min(0, { error: "Stock must be at least 0" }),
   image: z.array(
     z.object({
       id: z.string(),
       key: z.string(),
-    })
+    }),
   ),
   isActive: z.boolean().optional(),
   categoryId: z.string().min(1, { error: "Category ID is required" }),

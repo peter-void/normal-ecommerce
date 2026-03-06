@@ -12,8 +12,8 @@ interface CheckoutCartItemProps {
 
 export function CheckoutCartItem({ item }: CheckoutCartItemProps) {
   return (
-    <div className="flex gap-5 py-6 border-b-2 last:border-0 border-dashed border-gray-200 group">
-      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border-2 border-border bg-gray-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.05)] transition-all group-hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
+    <div className="flex gap-5 py-6 border-b border-gray-200 group last:border-0">
+      <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-none border border-gray-200 bg-gray-50 transition-all">
         <Image
           src={item.product?.images?.[0]?.src || "/placeholder.png"}
           alt={item.product?.name || "Product Image"}

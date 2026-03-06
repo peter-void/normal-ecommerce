@@ -7,6 +7,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { updateBiodata } from "../actions/action";
 import { DisplayNameInputFormSchema } from "../schemas/schema";
+import { useRouter } from "next/navigation";
 
 interface DisplayNameInputFormProps {
   defaultValue?: string;
@@ -19,6 +20,7 @@ export function DisplayNameInputForm({
 }: DisplayNameInputFormProps) {
   const [isPending, startTransition] = useTransition();
   const [value, setValue] = useState(defaultValue);
+  const router = useRouter();
 
   const handleSubmit = () => {
     startTransition(async () => {
@@ -37,6 +39,7 @@ export function DisplayNameInputForm({
       } else {
         toast.success(message);
         refetch();
+        router.refresh();
       }
     });
   };
@@ -58,7 +61,7 @@ export function DisplayNameInputForm({
 
         <Button
           disabled={defaultValue === value || !value || isPending}
-          className="w-full bg-white font-semibold text-black border-2 border-black"
+          className="w-full h-11 bg-black text-white hover:bg-gray-800 font-bold uppercase tracking-widest text-xs rounded-none"
           onClick={handleSubmit}
         >
           {isPending ? "Saving..." : "Save"}

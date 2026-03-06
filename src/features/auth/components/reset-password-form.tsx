@@ -71,7 +71,7 @@ export function ResetPasswordForm({
               id="password"
               name="password"
               placeholder="••••••••"
-              className="w-full outline-hidden bg-transparent font-medium placeholder:text-gray-400"
+              className="w-full outline-hidden bg-transparent font-medium text-black placeholder:text-gray-400"
               required
               minLength={8}
             />
@@ -93,7 +93,7 @@ export function ResetPasswordForm({
               id="confirmPassword"
               name="confirmPassword"
               placeholder="••••••••"
-              className="w-full outline-hidden bg-transparent font-medium placeholder:text-gray-400"
+              className="w-full outline-hidden bg-transparent font-medium text-black placeholder:text-gray-400"
               required
               minLength={8}
             />

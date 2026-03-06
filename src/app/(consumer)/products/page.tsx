@@ -29,29 +29,23 @@ export default async function Page(props: PageProps) {
   } = await getAllProducts(undefined, sortOption, q);
 
   return (
-    <div className="min-h-screen bg-neutral-100 relative font-sans pt-20">
-      <div className="absolute inset-0 bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[20px_20px] opacity-5 pointer-events-none" />
-
-      <div className="bg-cyan-400 border-y-4 border-black py-16 px-4 md:px-8 relative overflow-hidden">
-        <div className="absolute top-4 right-10 w-24 h-24 bg-yellow-400 rounded-full border-4 border-black hidden md:block" />
-        <div className="absolute bottom-4 left-20 w-16 h-16 bg-pink-500 rotate-12 border-4 border-black hidden md:block" />
-
-        <div className="container mx-auto relative z-10 text-center md:text-left">
-          <span className="inline-block bg-black text-white px-3 py-1 font-bold text-xs uppercase mb-4 tracking-widest">
-            Complete Catalog
-          </span>
-          <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none mb-4 italic">
-            Shop{" "}
-            <span className="text-white text-stroke-black">All Items.</span>
-          </h1>
-          <p className="font-bold text-lg md:text-xl max-w-xl leading-relaxed">
-            Everything you see is yours for the taking. Browse our full range of
-            curated essentials and find the perfect piece that speaks to you.
+    <div className="min-h-screen bg-white text-black font-sans pt-[72px]">
+      {/* Page Header */}
+      <div className="border-b border-gray-200 py-12 px-4 md:px-8">
+        <div className="container mx-auto">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-gray-400 mb-2">
+            ✦ COMPLETE CATALOG
           </p>
+          <h1
+            className="font-black uppercase tracking-tight leading-[0.9] text-black"
+            style={{ fontSize: "clamp(36px, 6vw, 80px)" }}
+          >
+            ALL PRODUCTS
+          </h1>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 md:px-8 py-12 relative z-10">
+      <div className="container mx-auto px-4 md:px-8 py-10">
         <ProductListing
           initialProducts={productsData}
           initialHasMore={hasMore}

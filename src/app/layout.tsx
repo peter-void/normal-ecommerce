@@ -1,13 +1,21 @@
 import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
-import { DM_Sans } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
-const dmSans = DM_Sans({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "600", "700"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-space-grotesk",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -15,20 +23,25 @@ export const metadata: Metadata = {
   description: "Brutal Shop - The Ultimate Shopping Experience",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html lang="en">
-      <Script
-        src="https://app.sandbox.midtrans.com/snap/snap.js"
-        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY!}
-      ></Script>
-      <body className={`${dmSans.className} antialiased`}>
+      <head>
+        <Script
+          src="https://app.sandbox.midtrans.com/snap/snap.js"
+          data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY!}
+          strategy="beforeInteractive"
+        />
+      </head>
+      <body
+        className={`${spaceGrotesk.variable} ${inter.variable} font-body antialiased`}
+      >
         {children}
-        <Toaster richColors />
+        <Toaster />
       </body>
     </html>
   );

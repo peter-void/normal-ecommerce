@@ -16,7 +16,7 @@ type PageItem = number | "ellipsis";
 function getPagesToShow(
   totalPages: number,
   currentPage: number,
-  maxWindow: number = 5
+  maxWindow: number = 5,
 ): PageItem[] {
   totalPages = Math.max(1, Math.floor(totalPages));
   currentPage = Math.min(Math.max(Number(currentPage), 1), totalPages);
@@ -34,23 +34,17 @@ function getPagesToShow(
     start = 1;
     end = Math.min(totalPages, start + maxWindow - 1);
   }
-
   if (end > totalPages) {
     end = totalPages;
     start = Math.max(1, totalPages - maxWindow + 1);
   }
 
   const pages: PageItem[] = [];
-
   if (start > 1) {
     pages.push(1);
-    if (start > 2) {
-      pages.push("ellipsis");
-    }
+    if (start > 2) pages.push("ellipsis");
   }
-
   for (let p = start; p <= end; p++) pages.push(p);
-
   if (end < totalPages) {
     if (end < totalPages - 1) pages.push("ellipsis");
     pages.push(totalPages);
@@ -62,40 +56,40 @@ function getPagesToShow(
 export function Pagination(props: PaginationProps) {
   const { page = "1", totalPages, hasNextPage, maxWindow = 5 } = props;
   const currentPage = Math.min(Math.max(Number(page), 1), totalPages);
-
   const derivedHasNext =
     typeof hasNextPage === "boolean" ? hasNextPage : currentPage < totalPages;
-
   const pages = getPagesToShow(totalPages, currentPage, maxWindow);
   const isFirstPage = currentPage === 1;
   const isLastPage = !derivedHasNext;
 
+  const navBtn = (disabled: boolean) =>
+    cn(
+      "flex items-center justify-center w-8 h-8 border border-gray-300 bg-white text-gray-500 transition-colors",
+      !disabled &&
+        "hover:bg-black hover:text-white hover:border-black cursor-pointer",
+      disabled && "opacity-30 cursor-not-allowed pointer-events-none",
+    );
+
   return (
-    <div className="flex flex-wrap items-center justify-center gap-3 py-4">
+    <div className="flex items-center gap-1.5">
       <Link
         href={isFirstPage ? "#" : `?page=${currentPage - 1}`}
-        className={cn(
-          "flex items-center justify-center w-12 h-12 border-2 border-black bg-white transition-all duration-200",
-          !isFirstPage &&
-            "hover:bg-yellow-400 hover:-translate-y-1 hover:translate-x-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-0 active:translate-x-0 active:shadow-none",
-          isFirstPage &&
-            "opacity-40 cursor-not-allowed bg-neutral-100 border-neutral-300 pointer-events-none"
-        )}
+        className={navBtn(isFirstPage)}
         aria-label="Previous page"
         aria-disabled={isFirstPage}
         onClick={(e) => isFirstPage && e.preventDefault()}
       >
-        <ChevronLeftIcon className="w-6 h-6 stroke-3" />
+        <ChevronLeftIcon className="w-4 h-4" />
       </Link>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         {pages.map((p, i) =>
           p === "ellipsis" ? (
             <span
               key={`e-${i}`}
-              className="flex items-end justify-center w-8 h-12 font-black text-2xl tracking-widest pb-2 select-none"
+              className="w-8 text-center text-xs text-gray-400 select-none"
             >
-              ...
+              …
             </span>
           ) : (
             <Link
@@ -103,32 +97,26 @@ export function Pagination(props: PaginationProps) {
               href={`?page=${p}`}
               scroll={false}
               className={cn(
-                "flex items-center justify-center w-12 h-12 border-2 border-black font-black text-lg transition-all duration-200",
+                "flex items-center justify-center w-8 h-8 border text-xs font-bold transition-colors",
                 p === currentPage
-                  ? "bg-black text-white -translate-y-1 translate-x-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.4)]"
-                  : "bg-white text-black hover:bg-pink-400 hover:text-white hover:-translate-y-1 hover:translate-x-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  ? "bg-black text-white border-black"
+                  : "border-gray-300 bg-white text-gray-600 hover:bg-black hover:text-white hover:border-black",
               )}
             >
               {p}
             </Link>
-          )
+          ),
         )}
       </div>
 
       <Link
         href={isLastPage ? "#" : `?page=${currentPage + 1}`}
-        className={cn(
-          "flex items-center justify-center w-12 h-12 border-2 border-black bg-white transition-all duration-200",
-          !isLastPage &&
-            "hover:bg-yellow-400 hover:-translate-y-1 hover:translate-x-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-0 active:translate-x-0 active:shadow-none",
-          isLastPage &&
-            "opacity-40 cursor-not-allowed bg-neutral-100 border-neutral-300 pointer-events-none"
-        )}
+        className={navBtn(isLastPage)}
         aria-label="Next page"
         aria-disabled={isLastPage}
         onClick={(e) => isLastPage && e.preventDefault()}
       >
-        <ChevronRightIcon className="w-6 h-6 stroke-[3]" />
+        <ChevronRightIcon className="w-4 h-4" />
       </Link>
     </div>
   );

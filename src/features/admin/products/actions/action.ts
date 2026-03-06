@@ -27,6 +27,7 @@ export async function deleteProduct(pId: string): Promise<ActionResponse> {
     });
 
     revalidatePath("/admin/products");
+    revalidatePath("/");
 
     return {
       success: true,
@@ -42,7 +43,7 @@ export async function deleteProduct(pId: string): Promise<ActionResponse> {
 
 export async function updateProduct(
   data: CreateProductSchema,
-  pId: string
+  pId: string,
 ): Promise<ActionResponse> {
   try {
     const validatedData = createProductSchema.safeParse(data);
@@ -115,7 +116,7 @@ export async function updateProduct(
 }
 
 export async function createProduct(
-  data: CreateProductSchema
+  data: CreateProductSchema,
 ): Promise<ActionResponse> {
   try {
     const validatedData = createProductSchema.safeParse(data);

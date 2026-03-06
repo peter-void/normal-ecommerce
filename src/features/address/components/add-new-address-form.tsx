@@ -76,9 +76,13 @@ type Location = {
 
 interface AddNewAddressFormProps {
   address?: Address;
+  onClose?: () => void;
 }
 
-export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
+export function AddNewAddressForm({
+  address,
+  onClose,
+}: AddNewAddressFormProps) {
   const [provinces, setProvinces] = useState<Location[]>([]);
   const [cities, setCities] = useState<Location[]>([]);
   const [subdistricts, setSubdistricts] = useState<Location[]>([]);
@@ -113,6 +117,7 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
 
       if (success) {
         toast.success(message);
+        onClose?.();
       } else {
         toast.error(message);
       }
@@ -148,7 +153,7 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
             "/api/rajaongkir/getCities?provinceId=" + provinceId,
             {
               method: "GET",
-            }
+            },
           );
 
           if (!response.ok) {
@@ -172,7 +177,7 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
             "/api/rajaongkir/getSubdistrict?cityId=" + cityId,
             {
               method: "GET",
-            }
+            },
           );
 
           if (!response.ok) {
@@ -195,16 +200,16 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
       transition={{ duration: 0.5 }}
       className="w-full max-w-4xl mx-auto p-0"
     >
-      <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white overflow-hidden rounded-none">
-        <CardContent className="p-8">
+      <Card className="border-0 bg-white overflow-hidden rounded-none">
+        <CardContent className="p-0 sm:p-2">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="overflow-y-auto max-h-[60vh] px-1 pr-4 custom-scrollbar">
                 {/* Personal Information Section */}
                 <div className="space-y-6">
-                  <div className="flex items-center gap-3 border-b-4 border-black pb-2 mb-6">
-                    <User className="w-6 h-6 stroke-[3px]" />
-                    <h3 className="text-xl font-black uppercase tracking-tight">
+                  <div className="flex items-center gap-3 border-b border-gray-200 pb-2 mb-6 text-gray-800">
+                    <User className="w-5 h-5" />
+                    <h3 className="text-base font-bold uppercase tracking-widest">
                       Personal Details
                     </h3>
                   </div>
@@ -224,7 +229,7 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                               <Input
                                 {...field}
                                 placeholder="e.g. John Doe"
-                                className="pl-12 py-6 bg-white border-2 border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all font-bold placeholder:text-gray-400"
+                                className="pl-12 py-6 bg-white border border-gray-200 rounded-none focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black transition-all font-medium placeholder:text-gray-400"
                               />
                             </div>
                           </FormControl>
@@ -249,13 +254,13 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                                   const newValue = e.target.value;
                                   const phoneNumberRegex = newValue.replace(
                                     /[^0-9]/g,
-                                    ""
+                                    "",
                                   );
                                   field.onChange(phoneNumberRegex);
                                 }}
                                 maxLength={12}
                                 placeholder="e.g. 08123456789"
-                                className="pl-12 py-6 bg-white border-2 border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all font-bold placeholder:text-gray-400"
+                                className="pl-12 py-6 bg-white border border-gray-200 rounded-none focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black transition-all font-medium placeholder:text-gray-400"
                               />
                             </div>
                           </FormControl>
@@ -268,9 +273,9 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
 
                 {/* Location Details Section */}
                 <div className="space-y-6 mt-12">
-                  <div className="flex items-center gap-3 border-b-4 border-black pb-2 mb-6">
-                    <Map className="w-6 h-6 stroke-[3px]" />
-                    <h3 className="text-xl font-black uppercase tracking-tight">
+                  <div className="flex items-center gap-3 border-b border-gray-200 pb-2 mb-6 text-gray-800">
+                    <Map className="w-5 h-5" />
+                    <h3 className="text-base font-bold uppercase tracking-widest">
                       Location Details
                     </h3>
                   </div>
@@ -289,11 +294,11 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                             onValueChange={(e) => {
                               field.onChange(e);
                               const getProvinceId = provinces.find(
-                                (item) => item.name === e
+                                (item) => item.name === e,
                               );
                               form.setValue(
                                 "province_id",
-                                getProvinceId?.id!.toString()!
+                                getProvinceId?.id!.toString()!,
                               );
                               form.setValue("city", "");
                               form.setValue("city_id", "");
@@ -302,16 +307,16 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                             }}
                           >
                             <FormControl>
-                              <SelectTrigger className="py-6 bg-white border-2 border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all font-bold">
+                              <SelectTrigger className="py-6 bg-white border border-gray-200 rounded-none focus:ring-1 focus:ring-black focus:border-black transition-all font-medium">
                                 <SelectValue placeholder="Select Province" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent className="border-4 border-black rounded-none">
+                            <SelectContent className="border border-gray-200 rounded-none bg-white">
                               {provinces.map((item) => (
                                 <SelectItem
                                   key={item.id}
                                   value={item.name}
-                                  className="font-bold focus:bg-yellow-400 focus:text-black"
+                                  className="font-bold focus:bg-black focus:text-white"
                                 >
                                   {item.name}
                                 </SelectItem>
@@ -336,11 +341,11 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                             onValueChange={(e) => {
                               field.onChange(e);
                               const getCityId = cities.find(
-                                (item) => item.name === e
+                                (item) => item.name === e,
                               );
                               form.setValue(
                                 "city_id",
-                                getCityId?.id!.toString()!
+                                getCityId?.id!.toString()!,
                               );
                               form.setValue("subdistrict", "");
                               form.setValue("subdistrict_id", "");
@@ -348,16 +353,16 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                             disabled={!provinceId}
                           >
                             <FormControl>
-                              <SelectTrigger className="py-6 bg-white border-2 border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all font-bold disabled:opacity-50">
+                              <SelectTrigger className="py-6 bg-white border border-gray-200 rounded-none focus:ring-1 focus:ring-black focus:border-black transition-all font-medium disabled:opacity-50">
                                 <SelectValue placeholder="Select City" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent className="border-4 border-black rounded-none">
+                            <SelectContent className="border border-gray-200 rounded-none bg-white">
                               {cities.map((item) => (
                                 <SelectItem
                                   key={item.id}
                                   value={item.name}
-                                  className="font-bold focus:bg-yellow-400 focus:text-black"
+                                  className="font-bold focus:bg-black focus:text-white"
                                 >
                                   {item.name}
                                 </SelectItem>
@@ -382,26 +387,26 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                             onValueChange={(e) => {
                               field.onChange(e);
                               const getSubdistrictId = subdistricts.find(
-                                (item) => item.name === e
+                                (item) => item.name === e,
                               );
                               form.setValue(
                                 "subdistrict_id",
-                                getSubdistrictId?.id!.toString()!
+                                getSubdistrictId?.id!.toString()!,
                               );
                             }}
                             disabled={!cityId}
                           >
                             <FormControl>
-                              <SelectTrigger className="py-6 bg-white border-2 border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all font-bold disabled:opacity-50">
+                              <SelectTrigger className="py-6 bg-white border border-gray-200 rounded-none focus:ring-1 focus:ring-black focus:border-black transition-all font-medium disabled:opacity-50">
                                 <SelectValue placeholder="Select Subdistrict" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent className="border-4 border-black rounded-none">
+                            <SelectContent className="border border-gray-200 rounded-none bg-white">
                               {subdistricts.map((item) => (
                                 <SelectItem
                                   key={item.id}
                                   value={item.name}
-                                  className="font-bold focus:bg-yellow-400 focus:text-black"
+                                  className="font-bold focus:bg-black focus:text-white"
                                 >
                                   {item.name}
                                 </SelectItem>
@@ -431,7 +436,7 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                                   const newValue = e.target.value;
                                   const phoneNumberRegex = newValue.replace(
                                     /[^0-9]/g,
-                                    ""
+                                    "",
                                   );
 
                                   if (isNaN(Number(phoneNumberRegex))) return;
@@ -440,7 +445,7 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                                 }}
                                 placeholder="e.g. 12345"
                                 maxLength={5}
-                                className="pl-12 py-6 bg-white border-2 border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all font-bold placeholder:text-gray-400"
+                                className="pl-12 py-6 bg-white border border-gray-200 rounded-none focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black transition-all font-medium placeholder:text-gray-400"
                               />
                             </div>
                           </FormControl>
@@ -464,16 +469,16 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                             onValueChange={field.onChange}
                           >
                             <FormControl>
-                              <SelectTrigger className="py-6 bg-white border-2 border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all font-bold">
+                              <SelectTrigger className="py-6 bg-white border border-gray-200 rounded-none focus:ring-1 focus:ring-black focus:border-black transition-all font-medium">
                                 <SelectValue placeholder="Select location type" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent className="border-4 border-black rounded-none">
+                            <SelectContent className="border border-gray-200 rounded-none bg-white">
                               {PlaceLabel.map((item) => (
                                 <SelectItem
                                   key={item.text}
                                   value={item.text}
-                                  className="font-bold focus:bg-yellow-400 focus:text-black"
+                                  className="font-bold focus:bg-black focus:text-white"
                                 >
                                   <div className="flex items-center gap-3">
                                     <item.icon className="w-5 h-5 stroke-[2px]" />
@@ -504,7 +509,7 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                               <Textarea
                                 {...field}
                                 placeholder="Street name, building, house number, etc."
-                                className="pl-12 min-h-[150px] resize-none bg-white border-2 border-black rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-none focus:translate-x-[2px] focus:translate-y-[2px] transition-all font-bold placeholder:text-gray-400"
+                                className="pl-12 min-h-[150px] resize-none bg-white border border-gray-200 rounded-none focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black transition-all font-medium placeholder:text-gray-400"
                               />
                             </div>
                           </FormControl>
@@ -516,8 +521,8 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 border-t-4 border-black">
-                <div className="flex items-center space-x-3 bg-gray-100 px-6 py-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 mt-4 border-t border-gray-200">
+                <div className="flex items-center space-x-3 text-gray-800">
                   <Checkbox
                     id="main_address"
                     checked={isMainAddress}
@@ -525,11 +530,11 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
                       form.setValue("main_address", e as boolean)
                     }
                     disabled={address?.mainAddress}
-                    className="w-6 h-6 border-2 border-black rounded-none data-[state=checked]:bg-black data-[state=checked]:text-white"
+                    className="w-5 h-5 border border-gray-300 rounded-none data-[state=checked]:bg-black data-[state=checked]:border-black data-[state=checked]:text-white"
                   />
                   <label
                     htmlFor="main_address"
-                    className="text-sm font-black uppercase tracking-tight peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    className="text-xs font-bold uppercase tracking-widest peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                   >
                     Set as main address
                   </label>
@@ -537,25 +542,23 @@ export function AddNewAddressForm({ address }: AddNewAddressFormProps) {
 
                 <Button
                   type="submit"
-                  className="w-full sm:w-auto min-w-[200px] py-8 bg-yellow-400 hover:bg-yellow-500 text-black border-2 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all font-black uppercase tracking-widest text-lg"
+                  className="w-full sm:w-auto h-12 px-10 bg-black hover:bg-gray-800 text-white border-none rounded-none font-bold uppercase tracking-widest text-xs transition-colors"
                   disabled={
                     form.formState.isSubmitting || !form.formState.isValid
                   }
                 >
                   {form.formState.isSubmitting ? (
                     <>
-                      <Loader2 className="w-5 h-5 mr-3 animate-spin stroke-[3px]" />{" "}
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />{" "}
                       Saving...
                     </>
                   ) : address ? (
                     <>
-                      <Save className="w-5 h-5 mr-3 stroke-[3px]" /> Update
-                      Address
+                      <Save className="w-4 h-4 mr-2" /> Update Address
                     </>
                   ) : (
                     <>
-                      <Save className="w-5 h-5 mr-3 stroke-[3px]" /> Save
-                      Address
+                      <Save className="w-4 h-4 mr-2" /> Save Address
                     </>
                   )}
                 </Button>

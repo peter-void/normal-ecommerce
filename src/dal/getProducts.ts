@@ -30,9 +30,13 @@ export async function getProductByKey(key: string) {
 export async function getProducts({
   take,
   skip,
+  search,
+  status,
 }: {
   take: number;
   skip: number;
+  search?: string;
+  status?: string;
 }) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -42,9 +46,30 @@ export async function getProducts({
     return redirect("/signin");
   }
 
+  const where = {
+    ...(search
+      ? {
+          OR: [
+            { name: { contains: search, mode: "insensitive" as const } },
+            {
+              category: {
+                name: { contains: search, mode: "insensitive" as const },
+              },
+            },
+          ],
+        }
+      : {}),
+    ...(status === "active"
+      ? { isActive: true }
+      : status === "draft"
+        ? { isActive: false }
+        : {}),
+  };
+
   const products = await prisma.product.findMany({
     take,
     skip,
+    where,
     orderBy: {
       createdAt: "desc",
     },
@@ -65,7 +90,7 @@ export async function getProducts({
     },
   });
 
-  const total = await prisma.product.count();
+  const total = await prisma.product.count({ where });
 
   const serializedProducts = products.map((product) => ({
     ...product,
@@ -84,7 +109,7 @@ export async function getProducts({
 export async function getRelatedProducts(
   categoryId: string,
   currentProductId: string,
-  limit: number = 4
+  limit: number = 4,
 ) {
   const products = await prisma.product.findMany({
     where: {

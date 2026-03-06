@@ -1,24 +1,17 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Category, Image } from "@/generated/prisma/client";
 import { formatRupiah } from "@/lib/format";
-import {
-  Image as ImageIcon,
-  Package,
-  Plus,
-  ShoppingCart,
-  Sparkles,
-} from "lucide-react";
+import { Image as ImageIcon, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { AddNewProductForm } from "./add-new-product-form";
 
@@ -29,7 +22,7 @@ export interface PreviewProductType {
   categoryId: string;
   description: string;
   isActive: boolean;
-  images: Omit<Image, "isMain" | "productId">[];
+  image: Omit<Image, "isMain" | "productId">[];
   slug: string;
 }
 
@@ -43,41 +36,43 @@ export function AddProductButton({ categories }: { categories: Category[] }) {
     categoryId: "",
     description: "",
     isActive: false,
-    images: [],
+    image: [],
     slug: "",
   });
 
   const selectedCategoryName =
     categories.find((c) => c.id === watchedValues.categoryId)?.name ||
-    "Select Category";
+    "Uncategorised";
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="h-14 px-8 text-lg font-heading gap-3 border-2 border-border shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all active:translate-x-[4px] active:translate-y-[4px] bg-white">
-          <Plus className="h-6 w-6" />
+        <Button className="h-10 px-5 text-sm font-bold gap-2 border border-gray-900 bg-black text-white hover:bg-gray-800 transition-colors rounded-none">
+          <Plus className="h-4 w-4" />
           Add Product
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[1200px] p-0 border-4 border-border shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden bg-secondary-background">
+      <DialogContent className="sm:max-w-[1100px] p-0 border-0 shadow-2xl overflow-hidden bg-white rounded-none">
         <div className="flex flex-col lg:flex-row h-full max-h-[90vh]">
-          <div className="flex-1 flex flex-col border-r-4 border-border bg-white overflow-hidden">
-            <DialogHeader className="bg-main p-8 border-b-4 border-border shrink-0">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="p-2 bg-white rounded-base border-2 border-border shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                  <Sparkles className="w-5 h-5 text-main" />
-                </div>
-                <DialogTitle className="text-3xl font-heading text-main-foreground">
+          {/* ─── LEFT: Form ─── */}
+          <div className="flex-1 flex flex-col border-r border-gray-100 bg-white overflow-hidden">
+            {/* Header */}
+            <div className="px-8 pt-8 pb-6 border-b border-gray-100 flex items-start justify-between shrink-0">
+              <div>
+                <DialogTitle className="text-2xl font-black uppercase tracking-tight leading-none">
                   New Product
                 </DialogTitle>
+                <DialogDescription className="text-xs text-gray-400 uppercase tracking-widest mt-1 font-bold">
+                  Create a new store listing
+                </DialogDescription>
               </div>
-              <DialogDescription className="text-main-foreground/90 font-base text-lg">
-                Create a high-quality product listing for your store.
-              </DialogDescription>
-            </DialogHeader>
+              <DialogClose className="text-gray-300 hover:text-black transition-colors mt-0.5">
+                <X className="w-5 h-5" />
+              </DialogClose>
+            </div>
 
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto px-8 py-6 custom-scrollbar">
               <AddNewProductForm
                 categories={categories}
                 onValuesChange={setWatchedValues}
@@ -87,97 +82,84 @@ export function AddProductButton({ categories }: { categories: Category[] }) {
             </div>
           </div>
 
-          <div className="hidden lg:flex w-[400px] bg-secondary-background flex-col items-center justify-center p-10 text-center relative overflow-hidden shrink-0">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-main/20 -mr-16 -mt-16 rounded-full blur-3xl opacity-50" />
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-main/10 -ml-32 -mb-32 rounded-full blur-3xl opacity-50" />
+          {/* ─── RIGHT: Live Preview ─── */}
+          <div className="hidden lg:flex w-[320px] bg-gray-50 border-l border-gray-100 flex-col overflow-hidden shrink-0">
+            <div className="px-6 py-5 border-b border-gray-100">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                Live Preview
+              </p>
+            </div>
 
-            <div className="relative z-10 w-full space-y-8">
-              <div className="space-y-3">
-                <span className="text-sm font-bold uppercase tracking-[0.3em] text-muted-foreground">
-                  Product Preview
-                </span>
-                <div className="h-1.5 w-16 bg-main mx-auto border-2 border-border shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]" />
-              </div>
-
-              <div className="w-full bg-white border-4 border-border rounded-2xl shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] overflow-hidden transition-all hover:-translate-y-1 hover:rotate-1">
-                <div className="h-56 bg-zinc-50 flex items-center justify-center border-b-4 border-border relative group">
-                  {watchedValues.images?.length > 0 ? (
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {/* Product card */}
+              <div className="bg-white border border-gray-200 overflow-hidden">
+                <div className="aspect-square bg-gray-100 relative overflow-hidden flex items-center justify-center">
+                  {watchedValues.image?.length > 0 ? (
                     <img
-                      src={watchedValues.images[0].src}
+                      src={watchedValues.image[0].src}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="flex flex-col items-center gap-3 text-muted-foreground/30">
-                      <ImageIcon className="w-16 h-16" />
-                      <span className="text-sm font-heading">
-                        Primary Image
+                    <div className="flex flex-col items-center gap-2 text-gray-300">
+                      <ImageIcon className="w-8 h-8" />
+                      <span className="text-[9px] font-bold uppercase tracking-widest">
+                        No Image
                       </span>
                     </div>
                   )}
-                  <div className="absolute top-4 right-4 flex flex-col gap-2">
-                    <Badge
-                      className={`border-2 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] font-heading ${
+                  <div className="absolute top-0 right-0">
+                    <div
+                      className={`px-3 py-1.5 text-[9px] font-black uppercase tracking-widest ${
                         watchedValues.isActive
-                          ? "bg-green-400 text-black"
-                          : "bg-zinc-200 text-zinc-500"
+                          ? "bg-black text-white"
+                          : "bg-gray-200 text-gray-600"
                       }`}
                     >
-                      {watchedValues.isActive ? "IN STOCK" : "OUT OF STOCK"}
-                    </Badge>
+                      {watchedValues.isActive ? "Active" : "Draft"}
+                    </div>
                   </div>
                 </div>
-                <div className="p-6 text-left space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Badge
-                      variant="neutral"
-                      className="text-[10px] uppercase font-bold border-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-zinc-100 text-zinc-600"
-                    >
-                      {selectedCategoryName}
-                    </Badge>
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-main/80 uppercase">
-                      <Package className="w-3" />
-                      {watchedValues.stock} qty
-                    </div>
-                  </div>
-
-                  <h4 className="font-heading text-2xl truncate leading-none pt-1">
+                <div className="p-4 space-y-1">
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 bg-gray-100 px-1.5 py-0.5 inline-block">
+                    {selectedCategoryName}
+                  </p>
+                  <h3 className="font-black text-sm uppercase tracking-tight leading-tight">
                     {watchedValues.name || "Product Name"}
-                  </h4>
-
-                  <div className="flex items-end justify-between gap-4">
-                    <div className="space-y-1">
-                      <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter">
-                        Current Price
-                      </p>
-                      <p className="font-heading text-2xl text-main">
-                        {formatRupiah(watchedValues.price)}
-                      </p>
-                    </div>
-                    <Button
-                      size="icon"
-                      className="h-12 w-12 border-2 border-border shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] pointer-events-none"
-                    >
-                      <ShoppingCart className="w-5 h-5" />
-                    </Button>
-                  </div>
-
-                  <div className="pt-4 border-t-2 border-border border-dashed">
-                    <p className="text-[10px] text-muted-foreground line-clamp-2 italic leading-relaxed">
-                      {watchedValues.description ||
-                        "A captivating description will go here..."}
-                    </p>
-                  </div>
+                  </h3>
+                  <p className="font-black text-base">
+                    {formatRupiah(watchedValues.price)}
+                  </p>
+                  <p className="text-[10px] text-gray-400 line-clamp-2">
+                    {watchedValues.description || "Description..."}
+                  </p>
                 </div>
               </div>
 
-              <div className="bg-white/40 backdrop-blur-md border-2 border-border p-5 rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,0.05)]">
-                <p className="text-xs font-base text-muted-foreground leading-relaxed">
-                  This preview shows how your product will look to customers.
-                  <span className="block mt-1 font-bold text-black italic underline decoration-main decoration-2 underline-offset-2">
-                    Make it look delicious!
-                  </span>
-                </p>
+              {/* Meta rows */}
+              <div className="space-y-0">
+                {[
+                  { label: "Name", value: watchedValues.name || "—" },
+                  { label: "Price", value: formatRupiah(watchedValues.price) },
+                  { label: "Stock", value: `${watchedValues.stock} units` },
+                  { label: "Category", value: selectedCategoryName },
+                  {
+                    label: "Status",
+                    value: watchedValues.isActive ? "Active" : "Draft",
+                  },
+                ].map((row) => (
+                  <div
+                    key={row.label}
+                    className="flex items-center justify-between py-2 border-b border-gray-100"
+                  >
+                    <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">
+                      {row.label}
+                    </span>
+                    <span className="text-xs font-bold truncate max-w-[140px]">
+                      {row.value}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

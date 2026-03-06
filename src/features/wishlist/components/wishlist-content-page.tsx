@@ -50,21 +50,19 @@ export function WishlistContentPage() {
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-center space-y-6">
-        <div className="bg-gray-100 p-8 rounded-full border-4 border-black border-dashed">
-          <ShoppingBag className="h-16 w-16 text-gray-400" />
+      <div className="flex flex-col items-center justify-center py-20 border border-dashed border-gray-300 bg-gray-50">
+        <div className="w-16 h-16 bg-black flex items-center justify-center mb-6">
+          <ShoppingBag className="w-8 h-8 text-white" />
         </div>
-        <div className="space-y-2 max-w-md">
-          <h2 className="text-3xl font-black uppercase">
-            Your Wishlist is Empty
-          </h2>
-          <p className="text-gray-600 font-medium text-lg">
-            Looks like you haven't added any items to your wishlist yet. Explore
-            our products and save your favorites!
-          </p>
-        </div>
+        <h2 className="text-xl font-black uppercase tracking-tight text-black mb-2">
+          Your Wishlist is Empty
+        </h2>
+        <p className="text-gray-500 text-sm text-center max-w-xs mb-8">
+          Looks like you haven&apos;t added any items to your wishlist yet.
+          Browse products and save your favorites.
+        </p>
         <Link href="/products">
-          <Button className="h-14 px-8 text-lg font-bold border-2 border-black bg-black text-white hover:bg-white hover:text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all uppercase">
+          <Button className="h-11 px-8 font-bold bg-black text-white hover:bg-gray-800 uppercase tracking-widest text-xs rounded-none">
             Start Shopping
           </Button>
         </Link>
@@ -74,13 +72,10 @@ export function WishlistContentPage() {
 
   return (
     <div className="space-y-8 pb-10">
-      <div className="border-b-4 border-black pb-6">
-        <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight">
-          My Wishlist <span className="text-purple-600">({items.length})</span>
+      <div className="border-b border-gray-200 pb-4">
+        <h1 className="text-2xl font-black uppercase tracking-tight">
+          My Wishlist <span className="text-gray-400">({items.length})</span>
         </h1>
-        <p className="mt-2 text-lg font-medium text-gray-600 max-w-2xl">
-          Your curated collection of favorites. Grab them before they're gone!
-        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

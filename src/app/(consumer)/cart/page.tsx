@@ -1,51 +1,47 @@
-import { fetchCartItems } from "@/features/carts/actions/action";
+import {
+  fetchCartItems,
+  getSelectedCartProductAction,
+} from "@/features/carts/actions/action";
 import { CartList } from "@/features/carts/components/cart-list";
 import { EmptyCart } from "@/features/carts/components/empty-cart";
 import { OrderSummary } from "@/features/carts/components/order-summary";
-import { Sparkles } from "lucide-react";
 
 export default async function CartPage() {
   const { items: initialItems, nextCursor, hasMore } = await fetchCartItems();
+  const selectedCartProducts = await getSelectedCartProductAction();
+  const initialSelectedIds = selectedCartProducts.map((p) => p.product.id);
 
   return (
-    <div className="min-h-screen p-6 md:p-12 font-sans  relative overflow-x-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(#000_1px,transparent_1px)] bg-size-[20px_20px] opacity-10 pointer-events-none" />
-
-      <div className="mx-auto max-w-6xl relative z-10 mt-20">
-        <div className="mb-12 flex flex-col md:flex-row md:items-end gap-6 border-b-4 border-black pb-8">
-          <div className="relative">
-            <div className="absolute -top-6 -left-6 bg-yellow-400 border-4 border-black px-4 py-1 transform -rotate-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <span className="font-black uppercase text-sm tracking-wider">
-                Secure Checkout
+    <div className="min-h-screen bg-white text-black">
+      <div className="mx-auto max-w-8xl px-8 md:px-16 pt-28 pb-16">
+        {/* Header */}
+        <div className="mb-8 border-b border-gray-200 pb-6">
+          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tight">
+            YOUR BAG{" "}
+            {initialItems.length > 0 && (
+              <span className="text-xl font-normal text-gray-500 tracking-normal">
+                ({initialItems.length} item{initialItems.length > 1 ? "s" : ""})
               </span>
-            </div>
-            <h1 className="text-6xl md:text-7xl font-black uppercase italic tracking-tighter text-transparent bg-clip-text bg-linear-to-r from-pink-500 via-purple-500 to-indigo-500 leading-[0.9]">
-              Your
-              <br />
-              Loot
-            </h1>
-          </div>
-
-          <div className="md:ml-auto max-w-md">
-            <div className="bg-white border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex gap-4 items-start">
-              <Sparkles className="w-8 h-8 text-yellow-500 shrink-0 fill-yellow-500" />
-              <p className="font-bold text-sm leading-tight">
-                Review your items carefully. Once you checkout, these awesome
-                items are practically yours!
-              </p>
-            </div>
-          </div>
+            )}
+          </h1>
+          {initialItems.length > 0 && (
+            <p className="mt-1 text-sm text-gray-500">
+              Items in your bag are not reserved — checkout now to make them
+              yours.
+            </p>
+          )}
         </div>
 
         {initialItems.length === 0 ? (
           <EmptyCart />
         ) : (
-          <div className="grid gap-8 lg:grid-cols-12 items-start">
+          <div className="grid gap-12 lg:grid-cols-12 items-start">
             <div className="lg:col-span-8">
               <CartList
                 initialItems={initialItems}
                 initialCursor={nextCursor}
                 initialHasMore={hasMore}
+                initialSelectedIds={initialSelectedIds}
               />
             </div>
 

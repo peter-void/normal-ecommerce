@@ -1,28 +1,28 @@
+import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "./lib/auth";
-import { headers } from "next/headers";
 
 export async function proxy(req: NextRequest) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
 
+  let response: NextResponse;
+
   if (session?.user && req.nextUrl.pathname.startsWith("/auth")) {
-    return NextResponse.redirect(new URL("/", req.url));
-  }
-
-  if (!session?.user && !req.nextUrl.pathname.startsWith("/auth")) {
-    return NextResponse.redirect(new URL("/auth/signin", req.url));
-  }
-
-  if (
+    response = NextResponse.redirect(new URL("/", req.url));
+  } else if (!session?.user && !req.nextUrl.pathname.startsWith("/auth")) {
+    response = NextResponse.redirect(new URL("/auth/signin", req.url));
+  } else if (
     session?.user?.isAdmin !== true &&
     req.nextUrl.pathname.startsWith("/admin")
   ) {
-    return NextResponse.redirect(new URL("/", req.url));
+    response = NextResponse.redirect(new URL("/", req.url));
+  } else {
+    response = NextResponse.next();
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {

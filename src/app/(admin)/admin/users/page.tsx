@@ -29,25 +29,25 @@ export default async function UsersPage(props: PageProps) {
       label: "TOTAL USERS",
       value: totalUsers,
       icon: <Users className="h-6 w-6" />,
-      color: "bg-main",
+      color: "bg-gray-100",
     },
     {
       label: "ADMINS",
       value: adminCount,
       icon: <ShieldCheck className="h-6 w-6" />,
-      color: "bg-[#A3E635]",
+      color: "bg-gray-100",
     },
     {
       label: "NEW USERS (30D)",
       value: newUsersCount,
       icon: <UserPlus className="h-6 w-6" />,
-      color: "bg-[#38BDF8]",
+      color: "bg-gray-100",
     },
     {
       label: "VERIFIED",
       value: verifiedCount,
       icon: <MailCheck className="h-6 w-6" />,
-      color: "bg-[#FB7185]",
+      color: "bg-gray-100",
     },
   ];
 

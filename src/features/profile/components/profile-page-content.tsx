@@ -24,11 +24,11 @@ export function ProfilePageContent({ user }: ProfilePageContentProps) {
 
   return (
     <div className="w-full font-base space-y-8">
-      <div className="flex items-end justify-between border-b-4 border-black pb-2">
-        <h1 className="text-4xl md:text-5xl font-heading uppercase tracking-tighter">
+      <div className="flex items-end justify-between border-b border-gray-200 pb-4">
+        <h1 className="text-2xl font-black uppercase tracking-tight">
           My Profile
         </h1>
-        <span className="font-bold text-xs md:text-sm uppercase bg-black text-white px-3 py-1 mb-1 transform -rotate-2">
+        <span className="font-bold text-xs uppercase tracking-widest text-gray-400">
           Personal Settings
         </span>
       </div>

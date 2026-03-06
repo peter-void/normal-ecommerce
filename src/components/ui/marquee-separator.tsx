@@ -17,8 +17,8 @@ export function MarqueeSeparator({
   return (
     <div
       className={cn(
-        "relative flex overflow-hidden py-4 bg-black border-y-4 border-black select-none",
-        className
+        "relative flex overflow-hidden py-4 select-none",
+        className,
       )}
     >
       <div className="flex w-fit">
@@ -30,14 +30,14 @@ export function MarqueeSeparator({
             transition={{
               repeat: Infinity,
               ease: "linear",
-              duration: 20, // Adjust speed here
+              duration: 22,
             }}
             className="flex items-center whitespace-nowrap"
           >
-            <span className="text-3xl font-black uppercase text-white italic tracking-tighter mx-4">
+            <span className="text-sm font-bold uppercase tracking-widest mx-6 opacity-90">
               {text}
             </span>
-            <span className="text-3xl font-black uppercase text-transparent bg-clip-text bg-linear-to-r from-purple-500 to-pink-500 italic tracking-tighter mx-4">
+            <span className="text-sm font-bold uppercase tracking-widest mx-6 opacity-60">
               {text}
             </span>
           </motion.div>

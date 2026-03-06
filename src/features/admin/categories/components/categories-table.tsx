@@ -1,13 +1,13 @@
 "use client";
 
 import { AlertDialogActionButton } from "@/components/alert-dialog-action-button";
-import { Badge } from "@/components/ui/badge";
 import { GetCategoriesType } from "@/dal/getCategories";
-import { Calendar, Image as ImageIcon, Package, Trash2 } from "lucide-react";
+import { Image as ImageIcon, Package, Trash2 } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
 import { deleteCategory } from "../actions/action";
 import { EditCategoryButton } from "./edit-category-button";
+import { cn } from "@/lib/utils";
 
 export function CategoriesTable({
   categories,
@@ -21,120 +21,125 @@ export function CategoriesTable({
   const handleDeleteCategory = async (cID: string) => {
     startDeleting(async () => {
       const { success, message } = await deleteCategory({ id: cID });
-
-      if (!success) {
-        toast.error(message);
-      } else {
-        toast.success(message);
-      }
+      if (!success) toast.error(message);
+      else toast.success(message);
     });
   };
 
   return (
     <table className="w-full text-left border-collapse">
       <thead>
-        <tr className="bg-main text-main-foreground font-heading">
-          <th className="p-5 border-b-2 border-border first:rounded-tl-xl truncate">
+        <tr className="border-b border-gray-200 bg-gray-50">
+          <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500 w-12 text-center">
             #
           </th>
-          <th className="p-5 border-b-2 border-border min-w-[200px]">Name</th>
-          <th className="p-5 border-b-2 border-border">Slug</th>
-          <th className="p-5 border-b-2 border-border min-w-[250px]">
+          <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+            Category
+          </th>
+          <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500 w-36">
+            Slug
+          </th>
+          <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">
             Description
           </th>
-          <th className="p-5 border-b-2 border-border">Status</th>
-          <th className="p-5 border-b-2 border-border">Products count</th>
-          <th className="p-5 border-b-2 border-border text-right last:rounded-tr-xl">
+          <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500 w-24 text-center">
+            Status
+          </th>
+          <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500 w-28 text-center">
+            Products
+          </th>
+          <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500 w-24 text-right">
             Actions
           </th>
         </tr>
       </thead>
-      <tbody className="bg-secondary-background">
+      <tbody className="bg-white divide-y divide-gray-100">
         {categories.map((category, i) => (
           <tr
             key={category.id}
-            className="group border-b-2 border-border last:border-0 hover:bg-main/5 transition-colors"
+            className="group hover:bg-gray-50 transition-colors"
           >
-            <td className="p-5 align-top">
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-base border-2 border-border bg-white font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            {/* # */}
+            <td className="px-5 py-4 text-center">
+              <span className="text-xs font-bold text-gray-400">
                 {i + skip + 1}
               </span>
             </td>
-            <td className="p-5 align-top">
-              <div className="flex items-start gap-4">
-                <div className="relative w-16 h-16 shrink-0 rounded-base border-2 border-border bg-white overflow-hidden shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center group-hover:scale-105 transition-transform">
+
+            {/* Category */}
+            <td className="px-5 py-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 shrink-0 border border-gray-100 bg-gray-50 overflow-hidden flex items-center justify-center">
                   {category.imageId ? (
                     <img
                       src={category.image?.src}
                       alt={category.name}
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                     />
                   ) : (
-                    <ImageIcon className="w-6 h-6 text-muted-foreground/30" />
+                    <ImageIcon className="h-4 w-4 text-gray-300" />
                   )}
                 </div>
-                <div className="flex flex-col gap-1">
-                  <span className="font-heading text-xl leading-tight">
-                    {category.name}
-                  </span>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Calendar className="w-3 h-3" />
-                    <span>
-                      {category.createdAt.toLocaleDateString("en-US", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </div>
+                <div>
+                  <p className="font-bold text-sm">{category.name}</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">
+                    {category.createdAt.toLocaleDateString("en-US", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </p>
                 </div>
               </div>
             </td>
-            <td className="p-5 align-top">
-              <Badge
-                variant="neutral"
-                className="font-mono text-[10px] uppercase tracking-tighter shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border-2"
-              >
+
+            {/* Slug */}
+            <td className="px-5 py-4">
+              <span className="font-mono text-[10px] text-gray-500 bg-gray-100 px-2 py-1">
                 {category.slug}
-              </Badge>
+              </span>
             </td>
-            <td className="p-5 align-top max-w-[300px]">
-              <p className="text-sm text-muted-foreground line-clamp-3 italic">
-                {category.description || "No description provided."}
+
+            {/* Description */}
+            <td className="px-5 py-4 max-w-[240px]">
+              <p className="text-xs text-gray-500 line-clamp-2">
+                {category.description || (
+                  <span className="text-gray-300 italic">No description</span>
+                )}
               </p>
             </td>
-            <td className="p-5 align-top">
-              <Badge
-                variant={category.isActive ? "default" : "neutral"}
-                className={`shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] border-2 font-bold px-3 py-1 ${
+
+            {/* Status */}
+            <td className="px-5 py-4 text-center">
+              <span
+                className={cn(
+                  "text-[10px] font-bold uppercase tracking-widest px-2.5 py-1",
                   category.isActive
-                    ? "bg-green-400 text-black"
-                    : "bg-gray-200 text-gray-500"
-                }`}
+                    ? "bg-black text-white"
+                    : "bg-gray-100 text-gray-500",
+                )}
               >
-                {category.isActive ? "ACTIVE" : "INACTIVE"}
-              </Badge>
+                {category.isActive ? "Active" : "Inactive"}
+              </span>
             </td>
 
-            <td className="p-5 align-top">
-              <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-base border-2 border-border bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none">
-                <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-main/20 text-main border border-border/20">
-                  <Package className="h-3.5 w-3.5" />
-                </div>
-                <span className="font-heading text-sm whitespace-nowrap">
-                  {category.products.length} Items
-                </span>
+            {/* Products count */}
+            <td className="px-5 py-4 text-center">
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-600">
+                <Package className="h-3.5 w-3.5 text-gray-400" />
+                {category.products.length}
               </div>
             </td>
 
-            <td className="p-5 text-right align-top">
-              <div className="flex justify-end gap-3">
+            {/* Actions */}
+            <td className="px-5 py-4 text-right">
+              <div className="flex justify-end gap-2">
                 <EditCategoryButton category={category} />
                 <AlertDialogActionButton
                   action={() => handleDeleteCategory(category.id)}
                   buttonContent={
                     <>
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-3.5 w-3.5" />
                       <span className="sr-only">Delete</span>
                     </>
                   }
@@ -143,12 +148,23 @@ export function CategoriesTable({
                   triggerButtonSize="icon"
                   disabled={isDeleting || category.products.length > 0}
                   isPending={isDeleting}
-                  className="h-10 w-10 border-2 border-border bg-white hover:bg-red-400 hover:text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                  className="h-8 w-8 border border-gray-200 bg-white text-gray-400 hover:bg-black hover:text-white hover:border-black transition-colors rounded-none"
                 />
               </div>
             </td>
           </tr>
         ))}
+
+        {categories.length === 0 && (
+          <tr>
+            <td colSpan={7} className="py-20 text-center">
+              <Package className="h-8 w-8 text-gray-200 mx-auto mb-3" />
+              <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">
+                No categories found
+              </p>
+            </td>
+          </tr>
+        )}
       </tbody>
     </table>
   );

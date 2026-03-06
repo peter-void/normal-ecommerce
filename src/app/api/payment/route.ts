@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
       {
         maxWait: 5000,
         timeout: 10000,
-      }
+      },
     );
 
     let parameter = {
@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
         id: userId,
       },
       callbacks: {
-        finish: `${process.env.NEXT_PUBLIC_APP_URL}/cart/checkout`,
+        finish: `${process.env.NEXT_PUBLIC_APP_URL}/order/success`,
       },
     };
     const token = await snap.createTransaction(parameter);

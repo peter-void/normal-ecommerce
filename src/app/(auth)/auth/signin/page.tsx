@@ -1,46 +1,77 @@
-import { Button } from "@/components/ui/button";
 import { SignInOAuth } from "@/features/auth/components/sign-in-oauth";
 import { SignInForm } from "@/features/auth/components/signin-form";
 import Link from "next/link";
 
 export default function SigninPage() {
   return (
-    <div className="min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-center py-12">
-      <div className="flex flex-col items-center gap-2 mb-8">
-        <div className="bg-yellow-400 border-2 border-black px-3 py-1 text-xs font-bold uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          Account
+    <div className="min-h-screen flex bg-white">
+      {/* Left Panel — Decorative */}
+      <div className="hidden lg:flex w-1/2 bg-black flex-col items-start justify-between p-16">
+        <Link
+          href="/"
+          className="font-black text-2xl uppercase tracking-tighter text-white"
+        >
+          BRUTAL SHOP
+        </Link>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-4">
+            ✦ WELCOME BACK
+          </p>
+          <h2 className="text-5xl font-black text-white uppercase leading-tight">
+            Good to
+            <br />
+            See You
+            <br />
+            Again.
+          </h2>
         </div>
-        <h1 className="text-5xl font-black uppercase text-center">
-          Welcome <br /> Back
-        </h1>
-        <p className="text-lg font-medium text-gray-600">
-          Login to your bold account
+        <p className="text-xs text-gray-600 uppercase tracking-widest">
+          © {new Date().getFullYear()} Brutal Shop
         </p>
       </div>
 
-      <div className="w-full max-w-md bg-white border-4 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-        <SignInForm />
-
-        <div className="relative my-8">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t-2 border-black"></span>
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white px-2 font-bold text-gray-500">
-              Or continue with
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4">
-          <SignInOAuth provider="google" />
-        </div>
-
-        <div className="mt-8 text-center text-sm font-bold uppercase">
-          Need an account?{" "}
-          <Link href="/auth/signup" className="underline hover:text-cyan-600">
-            SIGN UP
+      {/* Right Panel — Form */}
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-16">
+        <div className="w-full max-w-sm">
+          {/* Mobile logo only */}
+          <Link
+            href="/"
+            className="lg:hidden font-black text-xl uppercase tracking-tighter text-black mb-10 block"
+          >
+            BRUTAL SHOP
           </Link>
+
+          <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
+            ✦ LOGIN
+          </p>
+          <h1 className="text-3xl font-black uppercase tracking-tight text-black mb-8">
+            Welcome Back
+          </h1>
+
+          <SignInForm />
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-3 font-semibold text-gray-400 tracking-widest">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          <SignInOAuth provider="google" />
+
+          <p className="mt-8 text-center text-sm font-semibold text-gray-500">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/auth/signup"
+              className="text-black font-bold underline underline-offset-4 hover:text-gray-600 transition-colors"
+            >
+              Sign Up
+            </Link>
+          </p>
         </div>
       </div>
     </div>

@@ -7,31 +7,11 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const sidebarItems = [
-  {
-    title: "PROFILE",
-    href: "/profile",
-    icon: User,
-  },
-  {
-    title: "WISHLIST",
-    href: "/profile/wishlist",
-    icon: Heart,
-  },
-  {
-    title: "ADDRESS",
-    href: "/profile/address",
-    icon: MapPin,
-  },
-  {
-    title: "ORDER",
-    href: "/profile/order",
-    icon: BoxesIcon,
-  },
-  {
-    title: "SECURITY",
-    href: "/profile/security",
-    icon: Shield,
-  },
+  { title: "Profile", href: "/profile", icon: User },
+  { title: "Wishlist", href: "/profile/wishlist", icon: Heart },
+  { title: "Address", href: "/profile/address", icon: MapPin },
+  { title: "Orders", href: "/profile/order", icon: BoxesIcon },
+  { title: "Security", href: "/profile/security", icon: Shield },
 ];
 
 export function ProfileSidebar() {
@@ -41,50 +21,43 @@ export function ProfileSidebar() {
   const handleLogout = async () => {
     await authClient.signOut({
       fetchOptions: {
-        onSuccess: () => {
-          router.push("/");
-        },
+        onSuccess: () => router.push("/"),
       },
     });
   };
 
   return (
-    <aside className="w-full md:w-[300px] shrink-0 font-base">
-      <div className="flex flex-col gap-0 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white p-6 rounded-none">
-        <h2 className="text-xl font-heading mb-6 uppercase tracking-tight">
-          My Account
-        </h2>
-        <nav className="flex flex-col gap-4">
-          {sidebarItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link key={item.href} href={item.href}>
-                <div
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-3 border-2 border-black rounded-none transition-all font-bold uppercase text-sm",
-                    isActive
-                      ? "bg-cyan-400 text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] translate-x-[2px] translate-y-[2px]"
-                      : "bg-white hover:bg-gray-50 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:-translate-x-0.5"
-                  )}
-                >
-                  <item.icon className="h-5 w-5" />
-                  {item.title}
-                </div>
-              </Link>
-            );
-          })}
-          <button
-            onClick={handleLogout}
-            className={cn(
-              "flex items-center gap-3 px-4 py-3 border-2 border-black rounded-none transition-all font-bold uppercase text-sm w-full",
-              "bg-red-600 text-white hover:bg-red-700 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 hover:-translate-x-0.5 cursor-pointer"
-            )}
-          >
-            <LogOut className="h-5 w-5" />
-            LOGOUT
-          </button>
-        </nav>
-      </div>
+    <aside className="w-full md:w-[220px] shrink-0">
+      <nav className="flex flex-col">
+        {sidebarItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link key={item.href} href={item.href}>
+              <div
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 text-sm font-semibold uppercase tracking-widest transition-colors border-l-2",
+                  isActive
+                    ? "border-black text-black bg-gray-50"
+                    : "border-transparent text-gray-400 hover:text-black hover:bg-gray-50",
+                )}
+              >
+                <item.icon className="h-4 w-4 shrink-0" />
+                {item.title}
+              </div>
+            </Link>
+          );
+        })}
+
+        <div className="h-px w-full bg-gray-200 my-2" />
+
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-4 py-3 text-sm font-semibold uppercase tracking-widest text-gray-400 hover:text-black hover:bg-gray-50 transition-colors border-l-2 border-transparent w-full text-left"
+        >
+          <LogOut className="h-4 w-4 shrink-0" />
+          Logout
+        </button>
+      </nav>
     </aside>
   );
 }

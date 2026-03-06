@@ -10,11 +10,11 @@ export default async function Page() {
 
   return (
     <div className="space-y-10">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-black uppercase tracking-tight">
+      <div className="space-y-1 border-b border-gray-200 pb-4">
+        <h1 className="text-2xl font-black uppercase tracking-tight">
           Security
         </h1>
-        <p className="text-muted-foreground font-medium">
+        <p className="text-gray-500 text-sm">
           Manage your account security and sessions.
         </p>
       </div>

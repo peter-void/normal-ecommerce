@@ -58,6 +58,55 @@ type DashboardData = {
   };
 };
 
+function DashboardSkeleton() {
+  return (
+    <div className="flex p-6 flex-col gap-6 min-h-screen animate-pulse">
+      {/* Stat card skeletons */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {[0, 1].map((i) => (
+          <div key={i} className="border border-gray-200 bg-white p-6 h-36">
+            <div className="h-4 w-24 bg-gray-200 rounded mb-4" />
+            <div className="h-8 w-40 bg-gray-200 rounded mb-4" />
+            <div className="h-2 w-full bg-gray-100 rounded" />
+          </div>
+        ))}
+      </div>
+      {/* Chart + table skeletons */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-8 flex flex-col gap-6">
+          <div className="border border-gray-200 bg-white p-6 h-80">
+            <div className="h-5 w-32 bg-gray-200 rounded mb-6" />
+            <div className="h-full bg-gray-100 rounded" />
+          </div>
+          <div className="border border-gray-200 bg-white p-6 h-64">
+            <div className="h-5 w-28 bg-gray-200 rounded mb-4" />
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="flex gap-4 mb-4">
+                <div className="w-12 h-12 bg-gray-200 rounded" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-48 bg-gray-200 rounded" />
+                  <div className="h-3 w-24 bg-gray-100 rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="lg:col-span-4">
+          <div className="border border-gray-200 bg-white p-6 h-80">
+            <div className="h-5 w-28 bg-gray-200 rounded mb-4" />
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="flex justify-between mb-4">
+                <div className="h-3 w-32 bg-gray-200 rounded" />
+                <div className="h-3 w-20 bg-gray-100 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage({
   searchParams,
 }: {
@@ -97,11 +146,7 @@ export default function AdminPage({
   }, [dateRange]);
 
   if (!data) {
-    return (
-      <div className="flex p-6 flex-col gap-6 min-h-screen font-mono items-center justify-center">
-        <div className="text-2xl font-black uppercase italic">Loading...</div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   const statsDisplay = [
@@ -109,7 +154,7 @@ export default function AdminPage({
       title: "Balance",
       value: `${formatRupiah(data.stats.balance.value)}`,
       progress: data.stats.balance.progress,
-      color: "bg-green-400",
+      color: "bg-black",
       currentValue: Number(data.stats.balance.value),
       previousValue: 0,
     },
@@ -117,29 +162,29 @@ export default function AdminPage({
       title: "Money in",
       value: `${formatRupiah(data.stats.moneyIn.value)}`,
       progress: data.stats.moneyIn.progress,
-      color: "bg-yellow-400",
+      color: "bg-gray-600",
       currentValue: Number(data.stats.moneyIn.value),
       previousValue: Number(data.stats.moneyIn.previousValue),
     },
   ];
 
   return (
-    <div className="flex p-6 flex-col gap-6 min-h-screen font-mono">
+    <div className="flex p-6 flex-col gap-6 min-h-screen">
       <StatsCards stats={statsDisplay} />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-8 flex flex-col gap-6">
-          <div className="bg-white border-4 border-black p-6 rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <div className="bg-white border border-gray-200 p-6">
             <div className="flex flex-wrap justify-between items-center mb-10 gap-4">
-              <h2 className="text-2xl font-black uppercase italic">
+              <h2 className="text-xl font-bold uppercase tracking-tight">
                 Sales Overview
               </h2>
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#a888f8] border-2 border-black" />
+                  <div className="w-3 h-3 bg-gray-800" />
                   <span className="text-sm font-bold">Customers</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-[#22c55e] border-2 border-black" />
+                  <div className="w-3 h-3 bg-gray-400" />
                   <span className="text-sm font-bold">Sales</span>
                 </div>
                 <DateRangePicker

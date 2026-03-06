@@ -11,14 +11,16 @@ interface CartListProps {
   initialItems: CartItemType[];
   initialCursor?: string;
   initialHasMore: boolean;
+  initialSelectedIds: string[];
 }
 
 export function CartList({
   initialItems,
   initialCursor,
   initialHasMore,
+  initialSelectedIds,
 }: CartListProps) {
-  const { setCartItems, cartItems } = useCartItem();
+  const { setCartItems, cartItems, setSelectedItems } = useCartItem();
 
   const [cursor, setCursor] = useState<string | undefined>(initialCursor);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -57,6 +59,7 @@ export function CartList({
 
   useEffect(() => {
     setCartItems(initialItems);
+    setSelectedItems(initialSelectedIds);
   }, []);
 
   return (

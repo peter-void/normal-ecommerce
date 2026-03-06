@@ -1,8 +1,6 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogClose,
@@ -18,13 +16,7 @@ import { Uploader } from "@/components/uploader";
 import { GetCategoriesType } from "@/dal/getCategories";
 import { cleanSlug } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Calendar,
-  Image as ImageIcon,
-  Pencil,
-  Sparkles,
-  X,
-} from "lucide-react";
+import { Image as ImageIcon, Pencil, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -56,7 +48,6 @@ export function EditCategoryButton({
       data: e,
       cId: category.id,
     });
-
     if (success) {
       toast.success(message);
       setOpen(false);
@@ -66,9 +57,11 @@ export function EditCategoryButton({
     }
   };
 
+  // ✅ Fix: extract watched value OUTSIDE useEffect to avoid infinite loop
+  const watchedName = form.watch("name");
   useEffect(() => {
-    form.setValue("slug", cleanSlug(form.watch("name")));
-  }, [form.watch("name")]);
+    form.setValue("slug", cleanSlug(watchedName));
+  }, [watchedName]);
 
   useEffect(() => {
     form.setValue("isActive", category.isActive);
@@ -79,56 +72,56 @@ export function EditCategoryButton({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="h-10 w-10 border-2 border-border bg-white hover:bg-main hover:text-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none p-0">
-          <Pencil className="h-4 w-4" />
+        <Button
+          className="h-8 w-8 border border-gray-200 bg-white hover:bg-black hover:text-white hover:border-black transition-colors rounded-none p-0"
+          size="icon"
+        >
+          <Pencil className="h-3.5 w-3.5" />
           <span className="sr-only">Edit</span>
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[1100px] p-0 border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden bg-white">
+      <DialogContent className="sm:max-w-[1000px] p-0 border-0 shadow-2xl overflow-hidden bg-white rounded-none">
         <div className="flex flex-col md:flex-row h-full max-h-[90vh]">
-          {/* Left Side: Form */}
-          <div className="flex-1 flex flex-col min-w-0 bg-white">
-            <DialogHeader className="bg-main p-8 border-b-4 border-black relative text-left">
-              <DialogClose className="absolute right-6 top-6 text-main-foreground/60 hover:text-main-foreground transition-colors">
-                <X className="w-6 h-6" />
-              </DialogClose>
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
-                  <Sparkles className="w-6 h-6 text-main" />
-                </div>
-                <div>
-                  <DialogTitle className="text-3xl font-black uppercase tracking-tight text-main-foreground">
-                    Update Category
-                  </DialogTitle>
-                  <DialogDescription className="text-main-foreground/80 font-bold mt-1 text-base">
-                    Refine the details of your category below.
-                  </DialogDescription>
-                </div>
+          {/* ─── LEFT: Form ─── */}
+          <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            {/* Header */}
+            <div className="px-8 pt-8 pb-6 border-b border-gray-100 flex items-start justify-between">
+              <div>
+                <DialogTitle className="text-2xl font-black uppercase tracking-tight leading-none">
+                  Update Category
+                </DialogTitle>
+                <DialogDescription className="text-xs text-gray-400 uppercase tracking-widest mt-1 font-bold">
+                  Editing — {category.name}
+                </DialogDescription>
               </div>
-            </DialogHeader>
+              <DialogClose className="text-gray-300 hover:text-black transition-colors mt-0.5">
+                <X className="w-5 h-5" />
+              </DialogClose>
+            </div>
 
+            {/* Form body */}
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
-              className="p-8 space-y-10 overflow-y-auto flex-1 custom-scrollbar"
+              className="flex-1 overflow-y-auto"
             >
-              <div className="space-y-8">
-                {/* Name Field */}
+              <div className="p-8 space-y-6">
+                {/* Name */}
                 <Controller
                   control={form.control}
                   name="name"
                   render={({ field, fieldState }) => (
-                    <div className="space-y-3">
-                      <label className="font-black uppercase tracking-wider text-sm">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
                         Category Name
                       </label>
                       <Input
                         {...field}
                         placeholder="e.g. Traditional Food"
-                        className="h-14 border-4 border-black focus-visible:ring-0 focus-visible:border-main shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-lg font-bold"
+                        className="h-11 border border-gray-300 rounded-none focus-visible:ring-0 focus-visible:border-black text-sm font-bold px-3 bg-white"
                       />
                       {fieldState.error && (
-                        <p className="text-red-500 font-black text-xs uppercase italic">
+                        <p className="text-red-500 text-xs font-bold">
                           {fieldState.error.message}
                         </p>
                       )}
@@ -136,74 +129,86 @@ export function EditCategoryButton({
                   )}
                 />
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {/* Slug Field */}
+                {/* Slug + Status */}
+                <div className="grid grid-cols-2 gap-6">
                   <Controller
                     control={form.control}
                     name="slug"
                     render={({ field }) => (
-                      <div className="space-y-3">
-                        <label className="font-black uppercase tracking-wider text-sm">
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
                           URL Slug
                         </label>
-                        <Input
-                          {...field}
-                          className="h-14 border-4 border-black bg-gray-100 italic pointer-events-none opacity-80 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-bold text-muted-foreground"
-                          disabled
-                        />
+                        <div className="h-11 flex items-center border border-gray-200 bg-gray-50 px-3 gap-0.5">
+                          <span className="text-gray-400 font-mono text-sm">
+                            /
+                          </span>
+                          <span className="font-mono text-sm text-gray-500">
+                            {field.value || "auto-generated"}
+                          </span>
+                        </div>
                       </div>
                     )}
                   />
 
-                  {/* Status Field */}
                   <Controller
                     control={form.control}
                     name="isActive"
                     render={({ field: { value, onChange } }) => (
-                      <div className="space-y-3">
-                        <label className="font-black uppercase tracking-wider text-sm">
-                          Active Status
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
+                          Status
                         </label>
-                        <div
+                        <button
+                          type="button"
                           onClick={() => onChange(!value)}
-                          className={`flex items-center gap-4 h-14 px-5 border-4 border-black cursor-pointer transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
-                            value ? "bg-main/10" : "bg-gray-100"
+                          className={`h-11 w-full flex items-center gap-3 px-4 border transition-all ${
+                            value
+                              ? "border-black bg-black text-white"
+                              : "border-gray-300 bg-white text-gray-500"
                           }`}
                         >
-                          <Checkbox
-                            checked={value}
-                            onCheckedChange={onChange}
-                            className="h-7 w-7 border-4 border-black data-[state=checked]:bg-main data-[state=checked]:text-main-foreground shadow-none"
-                          />
-                          <div className="flex flex-col leading-none">
-                            <span className="font-black text-base uppercase">
-                              {value ? "Active" : "Draft"}
-                            </span>
-                            <span className="text-[10px] font-bold text-muted-foreground uppercase">
-                              {value ? "Publicly Visible" : "Hidden from Store"}
-                            </span>
+                          <div
+                            className={`w-4 h-4 border-2 flex items-center justify-center shrink-0 ${
+                              value
+                                ? "border-white bg-white"
+                                : "border-gray-400 bg-white"
+                            }`}
+                          >
+                            {value && <div className="w-2 h-2 bg-black" />}
                           </div>
-                        </div>
+                          <div className="text-left">
+                            <div className="text-xs font-black uppercase tracking-widest">
+                              {value ? "Active" : "Draft"}
+                            </div>
+                            <div
+                              className={`text-[9px] font-bold uppercase tracking-widest ${value ? "text-gray-300" : "text-gray-400"}`}
+                            >
+                              {value ? "Publicly Visible" : "Hidden"}
+                            </div>
+                          </div>
+                        </button>
                       </div>
                     )}
                   />
                 </div>
 
+                {/* Description */}
                 <Controller
                   control={form.control}
                   name="description"
                   render={({ field, fieldState }) => (
-                    <div className="space-y-3">
-                      <label className="font-black uppercase tracking-wider text-sm">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
                         Description
                       </label>
                       <Textarea
                         {...field}
-                        placeholder="Share a brief story or list what's inside this category..."
-                        className="min-h-[160px] border-4 border-black focus-visible:ring-0 focus-visible:border-main shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] resize-none text-base font-bold p-5"
+                        placeholder="Describe what items belong in this category..."
+                        className="min-h-[100px] border border-gray-300 rounded-none focus-visible:ring-0 focus-visible:border-black resize-none text-sm px-3 py-2.5 bg-white font-bold"
                       />
                       {fieldState.error && (
-                        <p className="text-red-500 font-black text-xs uppercase italic">
+                        <p className="text-red-500 text-xs font-bold">
                           {fieldState.error.message}
                         </p>
                       )}
@@ -211,152 +216,143 @@ export function EditCategoryButton({
                   )}
                 />
 
-                <div className="space-y-3">
-                  <label className="font-black uppercase tracking-wider text-sm">
-                    Category Media
+                {/* Image */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">
+                    Category Image
                   </label>
                   <Controller
                     control={form.control}
                     name="image"
                     render={({ field: { onChange } }) => (
-                      <div className="p-1">
-                        <div className="bg-gray-50 p-8 border-4 border-black flex flex-col items-center justify-center gap-4">
-                          <Uploader
-                            images={category.image ? [category.image] : []}
-                            onChange={(e) => {
-                              if (e.length > 0) {
-                                setImage(e[0].placeholder!);
-                                onChange(e[0].id);
-                              }
-
-                              if (e.length === 0) {
-                                setImage("");
-                                onChange("");
-                              }
-                            }}
-                            maxFiles={1}
-                            isEditMode={true}
-                            disabled={form.formState.isSubmitting}
-                          />
-                          <p className="text-[10px] font-black uppercase text-muted-foreground tracking-tighter">
-                            SVG, PNG, JPG or GIF (max. 5MB) • Max 1 file
-                          </p>
-                        </div>
+                      <div className="border border-dashed border-gray-300 bg-gray-50 p-6 flex flex-col items-center gap-3">
+                        <Uploader
+                          images={category.image ? [category.image] : []}
+                          onChange={(e) => {
+                            if (e.length > 0) {
+                              setImage(e[0].placeholder!);
+                              onChange(e[0].id);
+                            }
+                            if (e.length === 0) {
+                              setImage("");
+                              onChange("");
+                            }
+                          }}
+                          maxFiles={1}
+                          isEditMode={true}
+                          disabled={form.formState.isSubmitting}
+                        />
+                        <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">
+                          PNG, JPG or GIF · Max 5MB
+                        </p>
                       </div>
                     )}
                   />
                 </div>
               </div>
-            </form>
 
-            <div className="p-8 border-t-4 border-black flex gap-6 bg-white">
-              <DialogClose asChild>
+              {/* Footer actions */}
+              <div className="px-8 py-5 border-t border-gray-100 flex gap-3 bg-white sticky bottom-0">
+                <DialogClose asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1 h-11 font-bold text-xs uppercase tracking-widest border border-gray-300 bg-white text-black hover:bg-gray-50 rounded-none"
+                  >
+                    Cancel
+                  </Button>
+                </DialogClose>
                 <Button
-                  type="button"
-                  className="flex-1 h-14 font-black text-lg border-4 border-black bg-white text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-gray-100 hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
+                  onClick={form.handleSubmit(handleSubmit)}
+                  disabled={form.formState.isSubmitting}
+                  className="flex-1 h-11 font-black text-xs uppercase tracking-widest bg-black text-white hover:bg-gray-800 rounded-none"
                 >
-                  CANCEL
+                  {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
                 </Button>
-              </DialogClose>
-              <Button
-                onClick={form.handleSubmit(handleSubmit)}
-                disabled={form.formState.isSubmitting}
-                className="flex-2 h-14 font-black text-lg border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all bg-main text-white uppercase tracking-tighter"
-              >
-                {form.formState.isSubmitting ? "SAVING..." : "COMMIT CHANGES"}
-              </Button>
-            </div>
+              </div>
+            </form>
           </div>
 
-          {/* Right Side: Visual Preview */}
-          <div className="hidden md:flex w-[420px] bg-secondary-background border-l-4 border-black flex-col p-10 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-main/5 -mr-32 -mt-32 rounded-full blur-[100px]" />
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-main/5 -ml-40 -mb-40 rounded-full blur-[100px]" />
+          {/* ─── RIGHT: Live Preview ─── */}
+          <div className="hidden md:flex w-[340px] bg-gray-50 border-l border-gray-100 flex-col overflow-hidden shrink-0">
+            <div className="px-6 py-5 border-b border-gray-100">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+                Live Preview
+              </p>
+            </div>
 
-            <div className="relative z-10 w-full flex flex-col h-full">
-              <div className="space-y-4 mb-10 text-center">
-                <span className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center justify-center gap-3">
-                  <div className="h-[2px] w-8 bg-muted-foreground/30" />
-                  Category Preview
-                  <div className="h-[2px] w-8 bg-muted-foreground/30" />
-                </span>
-                <div className="h-2 w-24 bg-main mx-auto border-2 border-black" />
-              </div>
-
-              <div className="w-full bg-white border-4 border-black shadow-[10px_100px_80px_-40px_rgba(0,0,0,0.1),12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden transition-all duration-500 hover:-rotate-1 hover:scale-[1.02]">
-                <div className="h-56 bg-gray-100 flex items-center justify-center border-b-4 border-black relative overflow-hidden group">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {/* Category card preview */}
+              <div className="bg-white border border-gray-200 overflow-hidden">
+                <div className="aspect-4/3 bg-gray-100 relative overflow-hidden flex items-center justify-center">
                   {watchedValues.image && image ? (
                     <img
                       src={image}
                       alt="Preview"
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="flex flex-col items-center gap-4 text-muted-foreground/30">
-                      <div className="p-6 border-4 border-dashed border-black/10 rounded-full">
-                        <ImageIcon className="w-16 h-16" />
-                      </div>
-                      <span className="text-sm font-black uppercase tracking-tighter">
-                        Category Image
+                    <div className="flex flex-col items-center gap-2 text-gray-300">
+                      <ImageIcon className="w-8 h-8" />
+                      <span className="text-[9px] font-bold uppercase tracking-widest">
+                        No Image
                       </span>
                     </div>
                   )}
-                  <div className="absolute top-4 right-4 z-20">
-                    <Badge
-                      className={`border-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] px-4 py-1 font-black text-xs ${
+                  <div className="absolute top-0 right-0">
+                    <div
+                      className={`px-3 py-1.5 text-[9px] font-black uppercase tracking-widest ${
                         watchedValues.isActive
-                          ? "bg-green-400 text-black"
-                          : "bg-yellow-400 text-black"
+                          ? "bg-black text-white"
+                          : "bg-gray-200 text-gray-600"
                       }`}
                     >
-                      {watchedValues.isActive ? "ACTIVE" : "DRAFT"}
-                    </Badge>
+                      {watchedValues.isActive ? "Active" : "Draft"}
+                    </div>
                   </div>
                 </div>
-
-                <div className="p-8 text-left space-y-5">
-                  <div className="flex items-center justify-between text-[11px] font-black text-main uppercase italic tracking-widest">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      Updated Today
-                    </div>
-                    <span className="opacity-40">CAT-V1</span>
-                  </div>
-
-                  <h4 className="font-black text-3xl uppercase tracking-tighter leading-none wrap-break-word">
-                    {watchedValues.name || "Untitled"}
-                  </h4>
-
-                  <p className="text-sm text-muted-foreground font-bold italic leading-relaxed line-clamp-3">
+                <div className="p-4 space-y-1.5">
+                  <h3 className="font-black text-base uppercase tracking-tight leading-tight">
+                    {watchedValues.name || "Category Name"}
+                  </h3>
+                  <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
                     {watchedValues.description ||
-                      "Start typing your description to see how this category will be presented to your customers..."}
+                      "Category description will appear here once you start typing."}
                   </p>
-
-                  <div className="pt-4 flex items-center justify-between border-t-2 border-black/5">
-                    <Badge
-                      variant="neutral"
-                      className="text-[11px] border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white px-3 py-1 font-black tracking-tighter italic"
-                    >
-                      /{watchedValues.slug || "slug-id"}
-                    </Badge>
-                    <div className="flex gap-1">
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="w-2 h-2 bg-black opacity-10" />
-                      ))}
-                    </div>
+                  <div className="pt-2">
+                    <span className="font-mono text-[9px] text-gray-400 bg-gray-100 px-1.5 py-0.5">
+                      /{watchedValues.slug || "slug"}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-auto bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                <div className="flex gap-4">
-                  <div className="h-10 w-10 bg-yellow-400 border-2 border-black flex items-center justify-center shrink-0">
-                    <Sparkles className="w-5 h-5" />
-                  </div>
-                  <p className="text-[11px] font-bold text-muted-foreground uppercase leading-relaxed tracking-tighter">
-                    Real-time preview of your changes. Ensure the name and
-                    description are engaging!
-                  </p>
+              {/* Meta */}
+              <div className="space-y-2">
+                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-gray-400">
+                  Metadata
+                </p>
+                <div className="space-y-0">
+                  {[
+                    { label: "Name", value: watchedValues.name || "—" },
+                    { label: "Slug", value: `/${watchedValues.slug || "—"}` },
+                    {
+                      label: "Status",
+                      value: watchedValues.isActive ? "Active" : "Draft",
+                    },
+                  ].map((row) => (
+                    <div
+                      key={row.label}
+                      className="flex items-center justify-between py-2 border-b border-gray-100"
+                    >
+                      <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">
+                        {row.label}
+                      </span>
+                      <span className="text-xs font-bold truncate max-w-[150px]">
+                        {row.value}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

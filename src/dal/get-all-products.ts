@@ -8,7 +8,7 @@ import { serializeProduct } from "@/lib/utils";
 export async function getAllProducts(
   cursor?: string,
   sort?: string,
-  q?: string
+  q?: string,
 ) {
   let orderBy = {};
 
@@ -26,6 +26,11 @@ export async function getAllProducts(
     case SortOption.PRICE_DESC:
       orderBy = {
         price: "desc",
+      };
+      break;
+    case SortOption.BEST_SELLERS:
+      orderBy = {
+        orderItems: { _count: "desc" },
       };
       break;
     default:

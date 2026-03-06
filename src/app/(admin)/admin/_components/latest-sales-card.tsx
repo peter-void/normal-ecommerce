@@ -45,32 +45,32 @@ const statusConfig: Record<
   { color: string; icon: any; label: string }
 > = {
   PENDING: {
-    color: "bg-[#fefcbf]",
+    color: "bg-gray-100 text-gray-700",
     icon: Clock,
     label: "Pending",
   },
   PAID: {
-    color: "bg-[#c6f6d5]",
+    color: "bg-black text-white",
     icon: CheckCircle2,
     label: "Paid",
   },
   SHIPPED: {
-    color: "bg-[#e9d8fd]",
+    color: "bg-gray-700 text-white",
     icon: Truck,
     label: "Shipped",
   },
   DELIVERED: {
-    color: "bg-[#b2f5ea]",
+    color: "bg-gray-900 text-white",
     icon: PackageCheck,
     label: "Delivered",
   },
   CANCELLED: {
-    color: "bg-[#fed7d7]",
+    color: "bg-gray-200 text-gray-600",
     icon: XCircle,
     label: "Cancelled",
   },
   EXPIRED: {
-    color: "bg-[#edf2f7]",
+    color: "bg-gray-100 text-gray-500",
     icon: AlertCircle,
     label: "Expired",
   },
@@ -91,7 +91,7 @@ export function LatestSalesCard({
         const result = await getLatestSales(
           dateRange?.from,
           dateRange?.to,
-          page
+          page,
         );
         setData(result);
         setPage(page);
@@ -110,11 +110,13 @@ export function LatestSalesCard({
   }, [initialData.meta.page]);
 
   return (
-    <div className="bg-white border-4 border-black p-6 rounded-2xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-full flex flex-col">
+    <div className="bg-white border border-gray-200 p-6 h-full flex flex-col">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-black uppercase italic">Latest Sales</h2>
-        <div className="flex items-center gap-2 text-sm font-bold bg-gray-100 px-3 py-1 rounded-full border-2 border-transparent">
-          {data.meta.total} Total Orders
+        <h2 className="text-xl font-bold uppercase tracking-tight">
+          Latest Sales
+        </h2>
+        <div className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+          {data.meta.total} Orders
         </div>
       </div>
 
@@ -128,7 +130,7 @@ export function LatestSalesCard({
         <div
           className={cn(
             "space-y-4",
-            loading && "opacity-50 pointer-events-none"
+            loading && "opacity-50 pointer-events-none",
           )}
         >
           {data.data.length === 0 ? (
@@ -139,10 +141,10 @@ export function LatestSalesCard({
             data.data.map((sale) => (
               <div
                 key={sale.id}
-                className="group flex items-center justify-between p-4 border-2 border-black rounded-xl hover:bg-[#FFF5E0] transition-colors relative"
+                className="group flex items-center justify-between p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 border-2 border-black rounded-lg overflow-hidden bg-gray-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] group-hover:shadow-none transition-all group-hover:translate-x-[2px] group-hover:translate-y-[2px]">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 border border-gray-200 overflow-hidden bg-gray-100">
                     <img
                       src={sale.image}
                       alt={sale.name}
@@ -171,8 +173,8 @@ export function LatestSalesCard({
                     return (
                       <div
                         className={cn(
-                          "hidden sm:flex px-3 py-1 rounded-full border-2 border-black text-xs font-black items-center gap-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
-                          config.color
+                          "hidden sm:flex px-2 py-0.5 border border-gray-200 text-xs font-bold items-center gap-1.5",
+                          config.color,
                         )}
                       >
                         <Icon className="h-3.5 w-3.5" />
@@ -187,7 +189,7 @@ export function LatestSalesCard({
         </div>
       </div>
 
-      <div className="flex items-center justify-between mt-6 pt-4 border-t-2 border-black/10">
+      <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
         <div className="text-xs font-bold text-gray-500 uppercase tracking-wide">
           Page {data.meta.page} of {data.meta.totalPages}
         </div>

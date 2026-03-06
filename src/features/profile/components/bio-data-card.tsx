@@ -22,7 +22,7 @@ export function BioDataCard({
   refetch: () => void;
 }) {
   return (
-    <div className="bg-white border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 md:p-8">
+    <div className="bg-white border border-gray-200 p-6 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-2xl font-heading uppercase">Bio Data</h3>
       </div>
@@ -33,7 +33,7 @@ export function BioDataCard({
             Display Name
           </label>
           <div className="flex items-center gap-3">
-            <span className="text-xl font-heading uppercase text-black border-b-2 border-transparent group-hover:border-yellow-400 transition-colors">
+            <span className="text-base font-bold uppercase text-black">
               {user?.name || "Anonymous_User"}
             </span>
             <BioDataDialog
@@ -56,7 +56,7 @@ export function BioDataCard({
             Gender
           </label>
           <div className="flex items-center gap-3">
-            <span className="text-xl font-heading uppercase text-black border-b-2 border-transparent group-hover:border-yellow-400 transition-colors">
+            <span className="text-base font-bold uppercase text-black">
               {user?.gender ? user.gender.toLowerCase() : "Not specified"}
             </span>
             <BioDataDialog
@@ -79,7 +79,7 @@ export function BioDataCard({
             Date of Birth
           </label>
           <div className="flex items-center gap-3">
-            <span className="text-xl font-heading uppercase text-black border-b-2 border-transparent group-hover:border-yellow-400 transition-colors">
+            <span className="text-base font-bold uppercase text-black">
               {user?.dateOfBirth
                 ? format(user.dateOfBirth, "dd MMM yyyy")
                 : "Not specified"}
@@ -134,8 +134,8 @@ export function BioDataDialog({
     <Dialog>
       <DialogTrigger asChild>
         <button
-          className="flex items-center justify-center w-8 h-8 bg-yellow-400 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-yellow-300 hover:translate-x-px hover:translate-y-px hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none cursor-pointer "
-          title="Edit Name"
+          className="flex items-center justify-center w-8 h-8 border border-gray-300 hover:border-black hover:bg-gray-50 transition-colors cursor-pointer"
+          title="Edit"
         >
           <Edit3 className="w-4 h-4 text-black" />
         </button>

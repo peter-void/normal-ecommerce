@@ -9,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { cloneElement, isValidElement, useState } from "react";
 
 interface AddressDialogButtonProps {
   buttonText: React.ReactNode;
@@ -25,8 +26,16 @@ export function AddressDialogButton({
   dlgTitle,
   className,
 }: AddressDialogButtonProps) {
+  const [open, setOpen] = useState(false);
+
+  const childWithClose = isValidElement(children)
+    ? cloneElement(children as React.ReactElement<{ onClose?: () => void }>, {
+        onClose: () => setOpen(false),
+      })
+    : children;
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button type="button" className={className}>
           {buttonText}
@@ -39,7 +48,7 @@ export function AddressDialogButton({
             {dlgDescription}
           </DialogDescription>
         </DialogHeader>
-        <div>{children}</div>
+        <div>{childWithClose}</div>
       </DialogContent>
     </Dialog>
   );

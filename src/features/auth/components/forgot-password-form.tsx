@@ -56,7 +56,7 @@ export function ForgotPasswordForm() {
             id="email"
             name="email"
             placeholder="your@email.com"
-            className="w-full outline-hidden bg-transparent font-medium placeholder:text-gray-400"
+            className="w-full outline-hidden bg-transparent font-medium text-black placeholder:text-gray-400"
             required
           />
         </div>

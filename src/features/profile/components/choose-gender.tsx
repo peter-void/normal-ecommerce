@@ -17,7 +17,7 @@ interface ChooseGenderProps {
 export function ChooseGender({ refetch, defaultValue }: ChooseGenderProps) {
   const [isPending, startTransition] = useTransition();
   const [selectedGender, setSelectedGender] = useState<UserGender>(
-    defaultValue ?? UserGender.MALE
+    defaultValue ?? UserGender.MALE,
   );
 
   const handleChangeGender = () => {
@@ -85,7 +85,7 @@ export function ChooseGender({ refetch, defaultValue }: ChooseGenderProps) {
       </div>
 
       <Button
-        className="w-full mt-7 bg-white font-semibold text-black border-2 border-black"
+        className="w-full mt-7 h-11 bg-black text-white hover:bg-gray-800 font-bold uppercase tracking-widest text-xs rounded-none"
         onClick={handleChangeGender}
         disabled={isPending}
       >

@@ -7,9 +7,8 @@ import {
   updateCartItemQuantity,
 } from "@/features/carts/actions/action";
 import { useCartItem } from "@/hooks/use-cart-item";
-import { Minus, Plus, Share2, ShoppingBag } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
-import { toast } from "sonner";
+import { Minus, Plus, ShoppingBag } from "lucide-react";
+import { useTransition, useState } from "react";
 
 interface AddToCartFormProps {
   productId: string;
@@ -36,14 +35,14 @@ export function AddToCartForm({
 
   const handleAddToCart = () => {
     const currentCartItem = cartItems.find(
-      (cartItem) => cartItem.productId === productId
+      (cartItem) => cartItem.productId === productId,
     );
 
     startTransition(async () => {
       if (currentCartItem) {
         await updateCartItemQuantity(
           currentCartItem.id,
-          currentCartItem.quantity + quantity
+          currentCartItem.quantity + quantity,
         );
       } else {
         await addToCart(productId, quantity);
@@ -51,57 +50,81 @@ export function AddToCartForm({
     });
   };
 
+  const isOutOfStock = stock === 0;
+
   return (
-    <div className="mt-8 space-y-8">
-      <div className="space-y-3">
-        <label className="text-sm font-black uppercase tracking-wider bg-black text-white px-2 py-1 w-fit">
-          Quantity
-        </label>
-        <div className="flex items-center gap-6">
-          <div className="flex items-center border-4 border-black bg-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-            <button
-              onClick={decrement}
-              disabled={quantity <= 1}
-              className="flex h-14 w-14 items-center justify-center border-r-4 border-black hover:bg-yellow-400 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
-            >
-              <Minus className="h-6 w-6 stroke-[3px]" />
-            </button>
-            <div className="flex h-14 w-20 items-center justify-center font-black text-2xl">
-              {quantity}
-            </div>
-            <button
-              onClick={increment}
-              disabled={quantity >= stock}
-              className="flex h-14 w-14 items-center justify-center border-l-4 border-black hover:bg-yellow-400 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
-            >
-              <Plus className="h-6 w-6 stroke-[3px]" />
-            </button>
-          </div>
-          <span className="text-sm font-bold text-neutral-600 uppercase tracking-tight">
-            {stock > 0 ? `${stock} items available` : "Out of stock"}
-          </span>
-        </div>
+    <div className="flex flex-col gap-6 mt-2">
+      {/* Stock status indicator */}
+      <div className="flex items-center gap-2">
+        <span
+          className={`inline-block w-2 h-2 rounded-full ${isOutOfStock ? "bg-red-500" : "bg-green-500"}`}
+        />
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
+          {isOutOfStock ? "Out of Stock" : `${stock} in Stock`}
+        </span>
       </div>
 
-      <div className="flex gap-4 pt-4 border-t-4 border-black items-stretch">
+      {/* Quantity selector — Adidas minimal style */}
+      {!isOutOfStock && (
+        <div className="flex flex-col gap-2">
+          <label className="text-xs font-bold text-black uppercase tracking-widest">
+            Quantity
+          </label>
+          <div className="flex items-center border border-gray-300 w-fit">
+            <button
+              type="button"
+              onClick={decrement}
+              disabled={quantity <= 1}
+              className="flex h-11 w-11 items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label="Decrease quantity"
+            >
+              <Minus className="h-3.5 w-3.5" />
+            </button>
+            <span className="flex h-11 w-12 items-center justify-center text-sm font-bold text-black border-x border-gray-300 select-none">
+              {quantity}
+            </span>
+            <button
+              type="button"
+              onClick={increment}
+              disabled={quantity >= stock}
+              className="flex h-11 w-11 items-center justify-center hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label="Increase quantity"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* CTA buttons — full width Adidas style */}
+      <div className="flex gap-3 items-stretch">
         <Button
-          className="flex-1 h-16 text-xl font-black uppercase tracking-widest border-4 border-black bg-cyan-400 text-black hover:bg-cyan-300 hover:translate-x-[2px] hover:translate-y-[-2px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all active:translate-y-0 active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed group"
-          disabled={stock === 0 || isPending}
+          className="flex-1 h-14 rounded-none text-sm font-bold uppercase tracking-[0.15em] bg-black text-white hover:bg-black/85 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          disabled={isOutOfStock || isPending}
           onClick={handleAddToCart}
         >
           {isPending ? (
-            "Adding..."
+            <span className="flex items-center gap-2">
+              <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              Adding...
+            </span>
           ) : (
             <span className="flex items-center gap-3">
-              Add to Cart <ShoppingBag className="w-6 h-6 stroke-[3px]" />
+              <ShoppingBag className="h-4 w-4" />
+              {isOutOfStock ? "Out of Stock" : "Add to Cart"}
             </span>
           )}
         </Button>
 
-        <div className="flex gap-2">
-          <WishlistButton productId={productId} isWishlist={isWishlist} />
-        </div>
+        <WishlistButton
+          productId={productId}
+          isWishlist={isWishlist}
+          className="w-14 h-14 rounded-none border border-black bg-transparent hover:bg-gray-50 text-black flex-shrink-0"
+        />
       </div>
+
+      {/* Thin separator */}
+      <div className="h-px w-full bg-gray-100" />
     </div>
   );
 }

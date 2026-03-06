@@ -66,7 +66,7 @@ function ChangeAvatarInput({
 
   const onDropRejected = useCallback((fileRejections: FileRejection[]) => {
     const tooLargeFiles = fileRejections.find(
-      (fileRejection) => fileRejection.errors[0].code === "file-too-large"
+      (fileRejection) => fileRejection.errors[0].code === "file-too-large",
     );
 
     if (tooLargeFiles) {

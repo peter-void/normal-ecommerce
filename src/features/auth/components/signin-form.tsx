@@ -38,13 +38,13 @@ export function SignInForm() {
     <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="space-y-2">
         <label className="text-xs font-bold uppercase">Email</label>
-        <div className="flex items-center border-4 border-black p-3 gap-3 focus-within:bg-gray-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="flex items-center border border-gray-300 px-3 py-2.5 gap-3 focus-within:border-black transition-colors">
           <Mail className="size-5" />
           <input
             type="email"
             name="email"
             placeholder="your@email.com"
-            className="w-full outline-hidden bg-transparent font-medium placeholder:text-gray-400"
+            className="w-full outline-hidden bg-transparent font-medium text-black placeholder:text-gray-400"
             required
           />
         </div>
@@ -52,13 +52,13 @@ export function SignInForm() {
 
       <div className="space-y-2">
         <label className="text-xs font-bold uppercase">Password</label>
-        <div className="flex items-center border-4 border-black p-3 gap-3 focus-within:bg-gray-50 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="flex items-center border border-gray-300 px-3 py-2.5 gap-3 focus-within:border-black transition-colors">
           <Lock className="size-5" />
           <input
             type="password"
             name="password"
             placeholder="********"
-            className="w-full outline-hidden bg-transparent font-medium placeholder:text-gray-400"
+            className="w-full outline-hidden bg-transparent font-medium text-black placeholder:text-gray-400"
             required
           />
         </div>
@@ -68,14 +68,14 @@ export function SignInForm() {
         <div className="flex items-center gap-2"></div>
         <Link
           href="/auth/forgot-password"
-          className="text-xs font-bold uppercase hover:text-cyan-600"
+          className="text-xs font-bold uppercase hover:text-gray-500 transition-colors"
         >
           Forgot password?
         </Link>
       </div>
 
       <Button
-        className="w-full bg-cyan-400 hover:bg-cyan-500 border-4 border-black h-12 text-base font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px]"
+        className="w-full bg-black text-white hover:bg-gray-800 h-11 text-sm font-bold uppercase tracking-widest rounded-none transition-colors"
         type="submit"
         disabled={isSubmitting}
       >

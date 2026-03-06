@@ -25,9 +25,11 @@ export function CheckoutSummary({ items }: CheckoutSummaryProps) {
   const { selectedServiceContext: selectedService, setTotalBill } =
     useCheckout();
 
-  const totalPrice = items.reduce(
+  const safeItems = items ?? [];
+
+  const totalPrice = safeItems.reduce(
     (acc, item) => acc + item.quantity * Number(item.product.price),
-    0
+    0,
   );
 
   const deliveryFee = selectedService?.cost || 0;
@@ -47,7 +49,7 @@ export function CheckoutSummary({ items }: CheckoutSummaryProps) {
           method: "POST",
           body: JSON.stringify({
             totalAmount: totalPrice,
-            productDetails: items.map((item) => ({
+            productDetails: safeItems.map((item) => ({
               productId: item.product.id,
               quantity: item.quantity,
               price: item.product.price,
@@ -81,7 +83,7 @@ export function CheckoutSummary({ items }: CheckoutSummaryProps) {
 
   return (
     <div className="h-fit space-y-6 sticky top-24">
-      <div className="border-2 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+      <div className="border border-gray-200 bg-white p-6">
         <h2 className="text-xl font-heading mb-6 uppercase tracking-tight flex items-center gap-2">
           Summary
         </h2>
@@ -100,7 +102,7 @@ export function CheckoutSummary({ items }: CheckoutSummaryProps) {
             <span className="font-bold">{formatRupiah(platformFee)}</span>
           </div>
 
-          <div className="my-4 border-t-2 border-dashed border-gray-200" />
+          <div className="my-4 border-t border-gray-200" />
 
           <div className="flex justify-between text-lg items-end">
             <span className="font-heading uppercase text-xl">Total Bill</span>
@@ -112,7 +114,7 @@ export function CheckoutSummary({ items }: CheckoutSummaryProps) {
 
         <div className="mt-8 space-y-3">
           <Button
-            className="w-full h-12 bg-black text-white text-base font-bold uppercase tracking-wider border-2 border-transparent hover:bg-gray-900 shadow-none hover:shadow-lg transition-all flex items-center gap-2"
+            className="w-full h-12 bg-black text-white text-base font-bold uppercase tracking-widest border-0 rounded-none hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
             onClick={handlePayNow}
             disabled={isPending}
           >

@@ -9,11 +9,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Minus, Plus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import {
-  getSelectedCartProductAction,
-  removeItem,
-  updateCartItemQuantity,
-} from "../actions/action";
+import { removeItem, updateCartItemQuantity } from "../actions/action";
 import { toast } from "sonner";
 
 interface CartItemProps {
@@ -31,6 +27,8 @@ export function CartItem({ item }: CartItemProps) {
   } = useCartItem();
   const [currentItem, setCurrentItem] = useState(item);
   const timer = useRef<NodeJS.Timeout>(undefined);
+  const selectTimer = useRef<NodeJS.Timeout>(undefined);
+  const pendingSelected = useRef<boolean | null>(null);
 
   const triggerUpdate = (qty: number) => {
     if (timer.current) clearTimeout(timer.current);
@@ -88,165 +86,147 @@ export function CartItem({ item }: CartItemProps) {
 
   let isSelected = selectedItems.includes(item.product.id);
 
-  const handleSelectedItemClick = async () => {
+  const handleSelectedItemClick = () => {
+    // Optimistically toggle UI immediately
     if (isSelected) {
-      isSelected = false;
       setSelectedItems((prev) => prev.filter((id) => id !== item.product.id));
     } else {
-      isSelected = true;
       setSelectedItems((prev) => [...prev, item.product.id]);
     }
 
-    try {
-      const response = await fetch("/api/products/selected-item", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          productId: item.product.id,
-          cartId: item.cartId,
-        }),
-      });
+    // Track the latest desired state (debounce rapid clicks)
+    pendingSelected.current = !isSelected;
 
-      if (!response.ok) {
-        throw new Error("Failed to update selected items");
+    if (selectTimer.current) clearTimeout(selectTimer.current);
+    selectTimer.current = setTimeout(async () => {
+      try {
+        const response = await fetch("/api/products/selected-item", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            productId: item.product.id,
+            cartId: item.cartId,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to update selected items");
+        }
+      } catch (error) {
+        toast.error("Failed to update selected items");
+        // Revert optimistic update on error
+        setSelectedItems((prev) =>
+          pendingSelected.current
+            ? prev.filter((id) => id !== item.product.id)
+            : [...prev, item.product.id],
+        );
+      } finally {
+        pendingSelected.current = null;
       }
-    } catch (error) {
-      toast.error("Failed to update selected items");
-    }
+    }, 400);
   };
 
-  useEffect(() => {
-    const fetchSelectedCartProduct = async () => {
-      const selectedCartProduct = await getSelectedCartProductAction();
-      setSelectedItems(selectedCartProduct.map((item) => item.product.id));
-    };
-    fetchSelectedCartProduct();
-  }, []);
-
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{
-        opacity: 1,
-        y: 0,
-        backgroundColor: isSelected ? "#F3F4F6" : "#ffffff",
-        borderColor: "#000000",
-        scale: isSelected ? 1.0 : 1,
-        boxShadow: isSelected
-          ? "8px 8px 0px 0px #000000"
-          : "4px 4px 0px 0px #000000",
-      }}
-      exit={{
-        opacity: 0,
-        x: -100,
-        height: 0,
-        marginBottom: 0,
-        overflow: "hidden",
-      }}
-      whileHover={{
-        scale: 1.01,
-        boxShadow: "8px 8px 0px 0px #000000",
-        translateY: -2,
-      }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className={cn(
-        `group relative flex flex-col sm:flex-row items-start sm:items-center gap-6 border-4 p-6 cursor-pointer mb-6`,
-        isSelected
-          ? "z-10 bg-gray-50 border-black"
-          : "z-0 bg-white border-black"
-      )}
-      onClick={handleSelectedItemClick}
-    >
-      <AnimatePresence>
+    <AnimatePresence>
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, x: -60, height: 0, overflow: "hidden" }}
+        transition={{ duration: 0.2 }}
+        className={`group relative flex flex-col sm:flex-row items-stretch border-t border-b sm:border-b-0 border-gray-300 py-6 mb-0 transition-colors cursor-pointer ${
+          isSelected ? "bg-gray-50" : "bg-white hover:bg-gray-50"
+        }`}
+        onClick={handleSelectedItemClick}
+      >
+        {/* Selected Indicator - Black line on the left like Adidas or just rely on background */}
         {isSelected && (
-          <motion.div
-            initial={{ scale: 0, rotate: -45 }}
-            animate={{ scale: 1, rotate: 0 }}
-            exit={{ scale: 0, rotate: -45 }}
-            className="absolute -top-3 -right-3 p-2 bg-green-400 text-black border-4 border-black z-20 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-          >
-            <Check className="w-5 h-5 stroke-[4px]" />
-          </motion.div>
+          <div className="absolute top-0 left-0 w-1 h-full bg-black" />
         )}
-      </AnimatePresence>
 
-      <div className="relative aspect-square w-full sm:w-32 shrink-0 border-4 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.2)]">
-        <Image
-          src={item.product.images[0]?.src}
-          alt={item.product.name}
-          fill
-          unoptimized
-          className="object-cover"
-        />
-      </div>
-
-      <div className="flex flex-1 flex-col gap-3 w-full">
-        <div className="flex justify-between items-start w-full gap-4">
-          <h3
-            className={cn(
-              "font-black text-xl sm:text-2xl uppercase tracking-tight leading-none transition-colors",
-              isSelected ? "text-purple-600" : "text-black"
-            )}
-          >
-            {item.product.name}
-          </h3>
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="sm:hidden text-muted-foreground hover:text-red-500 transition-colors"
-          >
-            <Trash2 className="w-6 h-6" />
-          </button>
+        {/* Product image - thin border around image like Adidas */}
+        <div
+          className={`relative aspect-square w-32 sm:w-48 shrink-0 border border-gray-200 bg-gray-100 overflow-hidden ml-4 sm:ml-6`}
+        >
+          <Image
+            src={item.product.images[0]?.src}
+            alt={item.product.name}
+            fill
+            unoptimized
+            className="object-cover"
+          />
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="h-2 w-2 rounded-full bg-green-500 border border-black" />
-          <p className="text-xs font-bold uppercase text-muted-foreground">
-            In Stock
-          </p>
-        </div>
+        {/* Info Area */}
+        <div className="flex flex-1 flex-col justify-between ml-4 sm:ml-6 mr-2 sm:mr-6 py-1 min-w-0">
+          <div className="flex justify-between items-start gap-4">
+            <div className="space-y-1.5 flex-1 pr-4">
+              <h3 className="font-normal text-[15px] text-black">
+                {item.product.name}
+              </h3>
+              {item.product.description && (
+                <p className="text-[13px] text-gray-500 line-clamp-2">
+                  {item.product.description}
+                </p>
+              )}
+              {/* Dynamic stock badge */}
+              {item.product.stock === 0 ? (
+                <p className="text-[13px] font-bold text-red-600 pt-1">
+                  Out of stock
+                </p>
+              ) : item.product.stock <= 5 ? (
+                <p className="text-[13px] font-bold text-[#b85a00] pt-1">
+                  Low stock ({item.product.stock} left)
+                </p>
+              ) : null}
+            </div>
 
-        <p className="text-2xl font-black tabular-nums tracking-tight">
-          {formatRupiah(item.product.price)}
-        </p>
-
-        <div className="mt-2 flex items-center justify-between sm:justify-start gap-8">
-          <div
-            className="flex items-center bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Button
-              disabled={currentItem.quantity <= 1}
-              className="w-10 h-10 p-0 rounded-none bg-transparent hover:bg-yellow-200 text-black border-r-4 border-black disabled:opacity-50 transition-colors"
-              onClick={handleDecrementQuantity}
+            {/* Delete (Trash Icon) - top right */}
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="text-gray-500 hover:text-black transition-colors shrink-0 p-1"
             >
-              <Minus className="w-4 h-4" />
-            </Button>
-            <span className="w-12 text-center font-bold text-lg tabular-nums">
-              {currentItem.quantity}
-            </span>
-            <Button
-              className="w-10 h-10 p-0 rounded-none bg-transparent hover:bg-yellow-200 text-black border-l-4 border-black transition-colors"
-              onClick={handleIncrementQuantity}
-            >
-              <Plus className="w-4 h-4" />
-            </Button>
+              <Trash2 className="w-[18px] h-[18px]" />
+            </button>
           </div>
 
-          <button
-            type="button"
-            onClick={handleDelete}
-            className="hidden sm:flex items-center gap-2 px-4 py-2 hover:bg-red-100 text-muted-foreground hover:text-red-600 font-bold uppercase text-sm border-2 border-transparent hover:border-red-600 transition-all cursor-pointer"
-            title="Remove item"
-          >
-            <Trash2 className="w-5 h-5" />
-            <span>Delete</span>
-          </button>
+          <div className="flex items-center justify-between mt-6">
+            {/* Quantity stepper */}
+            <div
+              className="flex items-center border border-gray-300 divide-x divide-gray-300"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={handleDecrementQuantity}
+                disabled={currentItem.quantity <= 1}
+                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <Minus className="w-3.5 h-3.5" />
+              </button>
+              <span className="w-10 h-9 flex items-center justify-center text-[15px] font-bold text-black tabular-nums">
+                {currentItem.quantity}
+              </span>
+              <button
+                type="button"
+                onClick={handleIncrementQuantity}
+                disabled={currentItem.quantity >= item.product.stock}
+                className="w-9 h-9 flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-black transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Price */}
+            <p className="text-[15px] font-bold text-black tracking-tight">
+              {formatRupiah(item.product.price)}
+            </p>
+          </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 }

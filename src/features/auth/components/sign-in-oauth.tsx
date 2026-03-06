@@ -30,7 +30,7 @@ export function SignInOAuth({ provider, className }: SignInOAuthProps) {
 
   return (
     <Button
-      className={`w-full bg-white border-4 border-black h-12 font-bold hover:bg-gray-50 ${className}`}
+      className={`w-full bg-white text-black border border-gray-300 h-11 font-bold text-sm uppercase tracking-widest hover:bg-gray-50 hover:border-black transition-colors rounded-none ${className}`}
       onClick={handleClick}
       disabled={isPending}
     >

@@ -23,13 +23,13 @@ export function ChangeDateOfBirth({ refetch }: ChangeDateOfBirthProps) {
   const [isPending, startTransition] = useTransition();
 
   const [selectedDate, setSelectedDate] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [selectedMonth, setSelectedMonth] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [selectedYear, setSelectedYear] = useState<string | undefined>(
-    undefined
+    undefined,
   );
 
   const dates = generateDate();
@@ -39,7 +39,7 @@ export function ChangeDateOfBirth({ refetch }: ChangeDateOfBirthProps) {
   const saveDateOfBirth = () => {
     startTransition(async () => {
       const toDate = new Date(
-        `${selectedDate} ${selectedMonth} ${selectedYear}`
+        `${selectedDate} ${selectedMonth} ${selectedYear}`,
       );
 
       const response = await updateBiodata({
@@ -110,7 +110,7 @@ export function ChangeDateOfBirth({ refetch }: ChangeDateOfBirthProps) {
       </div>
 
       <Button
-        className="w-full mt-5 bg-white font-semibold text-black border-2 border-black"
+        className="w-full mt-5 h-11 bg-black text-white hover:bg-gray-800 font-bold uppercase tracking-widest text-xs rounded-none"
         onClick={saveDateOfBirth}
         disabled={isPending}
       >

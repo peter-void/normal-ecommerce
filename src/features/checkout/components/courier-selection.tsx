@@ -39,7 +39,7 @@ const COURIER_METADATA: Record<Courier, { name: string; logo: string }> = {
 
 interface CourierSelectionProps {
   items: CartItemType[];
-  mainAddress: Address;
+  mainAddress: Address | undefined;
 }
 
 export function CourierSelection({
@@ -62,10 +62,14 @@ export function CourierSelection({
   }, [items, setCartItems]);
 
   useEffect(() => {
-    if (selectedCourier && items.length > 0 && mainAddress?.subdistrictId) {
+    if (
+      selectedCourier &&
+      (items?.length ?? 0) > 0 &&
+      mainAddress?.subdistrictId
+    ) {
       const totalWeight = items.reduce(
         (acc, item) => acc + Number(item.product.weight),
-        0
+        0,
       );
 
       const fetchCosts = async () => {
@@ -75,7 +79,7 @@ export function CourierSelection({
 
         try {
           const response = await fetch(
-            `/api/rajaongkir/calculateCost?courier=${selectedCourier}&weight=${totalWeight}&destination=${mainAddress.subdistrictId}&origin=1360`
+            `/api/rajaongkir/calculateCost?courier=${selectedCourier}&weight=${totalWeight}&destination=${mainAddress.subdistrictId}&origin=1360`,
           );
 
           if (!response.ok) {
@@ -83,7 +87,7 @@ export function CourierSelection({
           }
 
           const data: Level[] = await response.json();
-          setCourierServices(data);
+          setCourierServices(Array.isArray(data) ? data : []);
 
           if (data && data.length > 0) {
             setSelectedService(data[0]);
@@ -100,13 +104,37 @@ export function CourierSelection({
     }
   }, [selectedCourier, items, mainAddress?.subdistrictId]);
 
+  const safeItems = items ?? [];
+
+  // No address — show placeholder instead of crashing
+  if (!mainAddress) {
+    return (
+      <div className="w-full space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-heading uppercase tracking-tight">
+            Shipping Method
+          </h2>
+        </div>
+        <div className="border-2 border-dashed border-gray-300 bg-gray-50 p-6 flex items-center gap-3">
+          <Truck className="w-5 h-5 text-gray-400 shrink-0" />
+          <p className="text-sm text-gray-500">
+            <span className="font-bold text-gray-700">
+              No shipping options yet.
+            </span>{" "}
+            Set a delivery address above to see available couriers and rates.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-heading uppercase tracking-tight">
           Shipping Method
         </h2>
-        <Badge className="text-xs font-bold uppercase tracking-wider border-2 border-black bg-white text-black hover:bg-gray-100">
+        <Badge className="text-[10px] font-bold uppercase tracking-widest border border-gray-200 bg-white text-black hover:bg-gray-50 rounded-none">
           Select Service
         </Badge>
       </div>
@@ -128,14 +156,14 @@ export function CourierSelection({
               <DropdownMenuTrigger className="w-full outline-none" asChild>
                 <div
                   className={cn(
-                    "relative w-full cursor-pointer border-2 p-4 transition-all duration-300 group overflow-hidden rounded-base",
+                    "relative w-full cursor-pointer border p-4 transition-colors duration-200 group rounded-none",
                     isSelected
-                      ? "border-primary bg-primary/5 shadow-[4px_4px_0px_0px_var(--primary)] -translate-y-[2px]"
-                      : "border-border bg-white hover:border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-[2px]"
+                      ? "border-black bg-gray-50"
+                      : "border-gray-200 bg-white hover:border-black",
                   )}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="h-14 w-20 shrink-0 relative flex items-center justify-center bg-white border-2 border-border rounded-base overflow-hidden p-2">
+                    <div className="h-14 w-20 shrink-0 relative flex items-center justify-center bg-white border border-gray-200 rounded-none p-2">
                       <Image
                         src={info.logo}
                         alt={info.name}
@@ -190,10 +218,10 @@ export function CourierSelection({
 
                     <div
                       className={cn(
-                        "w-6 h-6 rounded-full border-2 flex shrink-0 items-center justify-center transition-colors ml-2",
+                        "w-5 h-5 rounded-full border flex shrink-0 items-center justify-center transition-colors ml-2",
                         isSelected
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-gray-300 group-hover:border-black"
+                          ? "border-black bg-black text-white"
+                          : "border-gray-300 group-hover:border-black",
                       )}
                     >
                       {isSelected && <Check className="w-3 h-3" />}
@@ -225,7 +253,7 @@ export function CourierSelection({
                         className={cn(
                           "cursor-pointer flex items-center justify-between py-3 px-3 rounded-md border border-transparent hover:border-border hover:bg-gray-50 focus:bg-gray-50 bg-white",
                           selectedService?.service === level.service &&
-                            "bg-primary/5 border-primary/20 border-2"
+                            "bg-primary/5 border-primary/20 border-2",
                         )}
                       >
                         <div className="flex flex-col gap-1">

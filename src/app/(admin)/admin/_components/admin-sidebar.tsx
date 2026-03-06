@@ -106,8 +106,8 @@ export function AdminSidebar({
                       tooltip={item.title}
                       className={
                         pathname === item.url
-                          ? "bg-purple-100 text-purple-900 hover:bg-purple-200 hover:text-purple-900 border-r-4 border-purple-500 rounded-none"
-                          : ""
+                          ? "bg-black text-white hover:bg-black hover:text-white rounded-none"
+                          : "rounded-none"
                       }
                     >
                       <Link href={item.url}>
@@ -127,7 +127,7 @@ export function AdminSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton
               tooltip="Logout"
-              className="hover:bg-red-200"
+              className="hover:bg-gray-100 rounded-none"
               onClick={() =>
                 authClient.signOut({
                   fetchOptions: {

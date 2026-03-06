@@ -80,6 +80,7 @@ export enum SortOption {
   NEWEST = "newest",
   PRICE_ASC = "price-asc",
   PRICE_DESC = "price-desc",
+  BEST_SELLERS = "best-sellers",
 }
 
 export const EMAIL_VERIFICATION_TEMPLATE = (link: string) => {

@@ -3,12 +3,19 @@ import { Heart, Loader2Icon } from "lucide-react";
 import { useTransition } from "react";
 import { toast } from "sonner";
 
+import { cn } from "@/lib/utils";
+
 interface WishlistButtonProps {
   productId: string;
   isWishlist: boolean;
+  className?: string;
 }
 
-export function WishlistButton({ productId, isWishlist }: WishlistButtonProps) {
+export function WishlistButton({
+  productId,
+  isWishlist,
+  className,
+}: WishlistButtonProps) {
   const [isPending, startTransition] = useTransition();
 
   const handleWishlistClick = () => {
@@ -26,7 +33,10 @@ export function WishlistButton({ productId, isWishlist }: WishlistButtonProps) {
 
   return (
     <button
-      className="flex h-16 w-16 items-center justify-center border-4 border-black bg-white text-white hover:-translate-y-1 transition-transform"
+      className={cn(
+        "flex h-16 w-16 items-center justify-center border-4 border-black bg-white text-white hover:-translate-y-1 transition-transform",
+        className,
+      )}
       onClick={handleWishlistClick}
       disabled={isPending}
     >
