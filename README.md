@@ -1,6 +1,6 @@
 # 🛍️ Brutal Shop - Modern E-Commerce Platform
 
-> A full-stack e-commerce application built with Next.js 16, featuring a bold Neo-Brutalist design, real-time shopping experience, and comprehensive admin dashboard.
+> A full-stack e-commerce application built with Next.js 16, featuring a modern design.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.0-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
@@ -13,14 +13,12 @@
 
 ### ✨ Key Highlights
 
-- **Bold Neo-Brutalist Design** - Distinctive visual identity with thick borders, hard shadows, and vibrant colors
 - **Full E-Commerce Functionality** - Complete shopping cart, wishlist, order management, and checkout flow
 - **Secure Authentication** - Email/password and OAuth (Google) with session management
 - **Payment Integration** - Midtrans payment gateway for Indonesian market
 - **Admin Dashboard** - Comprehensive admin panel with analytics, product management, and order tracking
-- **Real-time Features** - Infinite scroll, optimistic updates, and smooth animations
 - **Cloud Storage** - Tigris S3 integration for image uploads
-- **Email Notifications** - Automated emails for verification and order updates
+- **Email Notifications** - Automated emails for verification
 
 ---
 
@@ -34,7 +32,7 @@
 - OAuth integration (Google)
 - Email verification system
 - Password reset functionality
-- User profile management with avatar upload
+- User profile management
 - Address management (up to 2 addresses)
 - Session management with device tracking
 
@@ -289,11 +287,3 @@ bunx tsc --noEmit
 ### Admin - Users Management
 
 ![Users Management](public/showcases/admin/users.png)
-
-## 👨‍💻 Author
-
-**Haikal Prasetya**
-
-- Portfolio: (https://haikalprasetya.vercel.app)
-- LinkedIn: (https://www.linkedin.com/in/haikal-alhakim-b02626287)
-- GitHub: (https://github.com/peterVoid)
